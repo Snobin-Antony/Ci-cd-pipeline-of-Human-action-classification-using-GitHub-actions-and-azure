@@ -1,6 +1,6 @@
 $schema: https://azuremlschemas.azureedge.net/latest/commandJob.schema.json
 code: .
-command: python model.py --data ${{ inputs.data }}
+command: python model.py --data ${{ inputs.training_data }}
 inputs:
   training_data:
     type: uri_file
