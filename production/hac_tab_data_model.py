@@ -90,7 +90,7 @@ for i in range(num_models):
     print(f"Predicted class: {activity_json}")
 
     # function to plot confusion matrix
-    def plot_confusion_matrix(cm,lables):
+    def plot_confusion_matrix(cm,lables, i):
         labels  = original_labels[lables] 
         fig, ax = plt.subplots(figsize=(12,8)) # for plotting confusion matrix as image
         im = ax.imshow(cm, interpolation='nearest', cmap=plt.cm.Blues)
@@ -111,4 +111,4 @@ for i in range(num_models):
 
     # Plot the confusion matrix
     cm = confusion_matrix(Y_test.values,y_pred)
-    plot_confusion_matrix(cm, np.unique(y_pred))  # plotting confusion matrix
+    plot_confusion_matrix(cm, np.unique(y_pred), i)  # plotting confusion matrix
