@@ -71,14 +71,14 @@ for i in range(num_models):
 
     lr_accuracy = accuracy_score(y_true=Y_test, y_pred=y_pred)
     print(f'Model {i+1} - Accuracy: {lr_accuracy}')
-    mlflow.log_metric(f'Model {i+1} - Accuracy: {lr_accuracy}')
+    mlflow.log_metric(f'Model_{i+1}_Accuracy:',lr_accuracy)
 
     # Calculate AUC
     Y_scores = lr_classifier_rs.predict_proba(X_test)
     #print(Y_scores)
     auc = roc_auc_score(Y_test, Y_scores, multi_class='ovr')
     print(f'Model {i+1} - AUC: {auc}')
-    mlflow.log_metric(f'Model {i+1} - AUC: {auc}')
+    mlflow.log_metric(f'Model_{i+1}_AUC:', auc)
 
     ## Make predictions
     # output_class = lr_classifier_rs.predict(X_test.iloc[0:2])
