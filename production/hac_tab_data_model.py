@@ -112,4 +112,4 @@ for i in range(num_models):
 
     # Plot the confusion matrix
     cm = confusion_matrix(Y_test.values,y_pred)
-    plot_confusion_matrix(cm, np.unique(y_pred), i)  # plotting confusion matrix
+    # plot_confusion_matrix(cm, np.unique(y_pred), i)  # plotting confusion matrix
