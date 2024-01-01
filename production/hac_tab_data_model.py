@@ -53,6 +53,7 @@ original_labels = le.inverse_transform([0,1,2,3])      # Only to know which one 
 
 y_data_df = data_df.Activity
 x_data_df = data_df.drop(['subject', 'Activity'], axis=1)
+x_data_df= x_data_df.iloc[:,0:2]
 
 # Set the number of models and splits
 num_models = 3
