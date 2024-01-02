@@ -46,14 +46,14 @@ print(data_df.Activity.value_counts())
 # plt.xticks(rotation=0)
 # plt.show()
 
-le = LabelEncoder()
-data_df['Activity'] = le.fit_transform(data_df.Activity)
-print(data_df['Activity'].sample(5))
-original_labels = le.inverse_transform([0,1,2,3])      # Only to know which one corresponds to each number
+# le = LabelEncoder()
+# data_df['Activity'] = le.fit_transform(data_df.Activity)
+# print(data_df['Activity'].sample(5))
+# original_labels = le.inverse_transform([0,1,2,3])      # Only to know which one corresponds to each number
 
 y_data_df = data_df.Activity
 x_data_df = data_df.drop(['subject', 'Activity'], axis=1)
-x_data_df= x_data_df.iloc[:,0:2]
+# x_data_df= x_data_df.iloc[:,0:2]
 
 # Set the number of models and splits
 num_models = 3
@@ -84,21 +84,21 @@ for i in range(num_models):
     ## Make predictions
     # output_class = lr_classifier_rs.predict(X_test.iloc[0:2])
     output_class = lr_classifier_rs.predict(X_test.iloc[[1469]])
-    output_class_label = original_labels[output_class]
+    # output_class_label = original_labels[output_class]
     # Convert the array to a list and then to JSON
-    activity_json = json.dumps(output_class_label.tolist())
+    activity_json = json.dumps(output_class.tolist())
     # Print the predicted class
     print(f"Predicted class: {activity_json}")
 
     # function to plot confusion matrix
     def plot_confusion_matrix(cm,lables, i):
-        labels  = original_labels[lables] 
+        # labels  = original_labels[lables] 
         fig, ax = plt.subplots(figsize=(12,8)) # for plotting confusion matrix as image
         im = ax.imshow(cm, interpolation='nearest', cmap=plt.cm.Blues)
         ax.figure.colorbar(im, ax=ax)
         ax.set(xticks=np.arange(cm.shape[1]),
         yticks=np.arange(cm.shape[0]),
-        xticklabels=labels, yticklabels=labels,
+        xticklabels=lables, yticklabels=lables,
         ylabel='True label',
         xlabel='Predicted label')
         plt.xticks(rotation = 90)
@@ -112,4 +112,4 @@ for i in range(num_models):
 
     # Plot the confusion matrix
     cm = confusion_matrix(Y_test.values,y_pred)
-    # plot_confusion_matrix(cm, np.unique(y_pred), i)  # plotting confusion matrix
+    plot_confusion_matrix(cm, np.unique(y_pred), i)  # plotting confusion matrix
