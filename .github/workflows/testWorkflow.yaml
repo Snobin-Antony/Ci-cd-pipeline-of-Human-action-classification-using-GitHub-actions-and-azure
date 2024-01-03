@@ -16,14 +16,13 @@ jobs:
       - run: echo "Repository cloned, I think I'm ready. The files look like this:"
       - name: List files
         run: ls ${{ github.workspace }}
-      # - name: Log into Azure
-      #   uses: azure/login@v1
-      #   with:
-      #     creds: ${{ secrets.AZURE_CREDENTIALS }}
-      # - name: Test azure login by getting details
-      #   run: az account show
-      # - name: add extension
-      #   run: az extension add --name ml
-      # - name: create job
-      #   run: az ml job create --file production/job.yaml --resource-group assignment-snobin --workspace-name assignmentsnobin
-      
+      - name: Log into Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - name: Test azure login by getting details
+        run: az account show
+      - name: add extension
+        run: az extension add --name ml
+      - name: create job
+        run: az ml job create --file production/job.yaml --resource-group assignment-snobin --workspace-name assignmentsnobin
