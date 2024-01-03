@@ -35,8 +35,8 @@ jobs:
         run: |
           job_status="NotStarted"
           while [ "$job_status" != "Completed" ]; do
-            echo "Job Name: ${{ steps.create-azure-ml-job.outputs.job_name }}"
-            job_status=$(az ml job show --resource-group assignment-snobin --workspace-name assignmentsnobin --name ${{ steps.create-azure-ml-job.outputs.job_name }} --query 'status' -o tsv)
+            echo "Job Name: $AZURE_ML_JOB_NAME"
+            job_status=$(az ml job show --resource-group assignment-snobin --workspace-name assignmentsnobin --name $AZURE_ML_JOB_NAME --query 'status' -o tsv)
             echo "Job Status: $job_status"
             if [ "$job_status" != "Completed" ]; then
               sleep 60  # Adjust the sleep interval as needed
