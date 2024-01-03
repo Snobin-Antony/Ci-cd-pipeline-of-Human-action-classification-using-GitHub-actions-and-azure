@@ -28,7 +28,7 @@ jobs:
       - name: create job
         run: |
           export AZURE_ML_JOB_NAME=$(az ml job create --file production/job.yaml --resource-group assignment-snobin --workspace-name assignmentsnobin --query name -o tsv)
-          echo "::set-output name=job_name::${AZURE_ML_JOB_NAME}"
+          echo "AZURE_ML_JOB_NAME=${AZURE_ML_JOB_NAME}" >> $GITHUB_ENV
       # Wait for the Azure ML job to complete
       - name: Wait for Azure ML Job
         id: wait-for-job
