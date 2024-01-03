@@ -6,9 +6,7 @@ inputs:
   training_data:
     type: uri_file
     path: azureml:hactab:1  # dataset path
-  model_path:
-    type: string
-    path: azureml:hac_model:1      # model path
+  model_path: azureml:hac_model:1      # model path
 environment: azureml://registries/azureml/environments/sklearn-1.1/versions/14
 compute: assignment-ml-compute
 experiment_name: coursework-ml-compute-human-action-classification
