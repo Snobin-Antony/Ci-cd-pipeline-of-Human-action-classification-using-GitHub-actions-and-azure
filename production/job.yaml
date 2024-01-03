@@ -1,5 +1,5 @@
 $schema: https://azuremlschemas.azureedge.net/latest/commandJob.schema.json
-name: human-action-classifier-job-1  # custom job name
+#name: human-action-classifier-job-1  # custom job name
 code: .
 command: python hac_tab_data_model.py --data ${{ inputs.training_data }} --model ${{ inputs.model_path }}
 inputs:

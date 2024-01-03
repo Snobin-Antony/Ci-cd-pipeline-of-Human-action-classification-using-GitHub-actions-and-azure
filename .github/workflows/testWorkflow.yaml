@@ -24,34 +24,47 @@ jobs:
         run: az account show
       - name: add extension
         run: az extension add --name ml
+      # Create Job and capture the job name in an environment variable
       - name: create job
-        run: az ml job create --file production/job.yaml --resource-group assignment-snobin --workspace-name assignmentsnobin
+        run: |
+          export AZURE_ML_JOB_NAME=$(az ml job create --file production/job.yaml --resource-group assignment-snobin --workspace-name assignmentsnobin --query name -o tsv)
+          echo "::set-output name=job_name::${AZURE_ML_JOB_NAME}"
       # Wait for the Azure ML job to complete
       - name: Wait for Azure ML Job
         id: wait-for-job
         run: |
           job_status="NotStarted"
           while [ "$job_status" != "Completed" ]; do
-            job_status=$(az ml job show --resource-group assignment-snobin --workspace-name assignmentsnobin --name human-action-classifier-job --query 'status' -o tsv)
+            job_status=$(az ml job show --resource-group assignment-snobin --workspace-name assignmentsnobin --name ${{ steps.create-azure-ml-job.outputs.job_name }} --query 'status' -o tsv)
             echo "Job Status: $job_status"
             if [ "$job_status" != "Completed" ]; then
               sleep 60  # Adjust the sleep interval as needed
             fi
           done
         shell: bash
-
       # Get the final status of the Azure ML job
       - name: Get Azure ML Job Status
+        id: get-job-status
         run: |
-          job_status=$(az ml job show --resource-group assignment-snobin --workspace-name assignmentsnobin --name human-action-classifier-job --query 'status' -o tsv)
+          job_status=$(az ml job show --resource-group assignment-snobin --workspace-name assignmentsnobin --name ${{ steps.create-azure-ml-job.outputs.job_name }} --query 'status' -o tsv)
           echo "Final Job Status: $job_status"
-      # Register the model if the job is completed
-      - name: Register the Model
-        if: ${{ steps.wait-for-job.outputs.job_status == 'Completed' }}
-        run: |
-          az ml model register --model-name hac_model --asset-path azureml:hac_model:1
-      # Deploy the model if the model is registered
-      - name: Deploy the Model
-        if: ${{ success() && steps.wait-for-job.outputs.job_status == 'Completed' }}
-        run: |
-          az ml model deploy --model-name hac_model --deployment-name hac_model_staging --deployment-cluster assignment-ml-compute --overwrite
+
+          if [ "$job_status" == "Completed" ]; then
+            # Get model details if the job is completed
+            export MODEL_NAME=$(az ml model list --query "[?tags.job_name=='${{ steps.create-azure-ml-job.outputs.job_name }}'].name" -o tsv)
+            export MODEL_PATH=$(az ml model list --query "[?tags.job_name=='${{ steps.create-azure-ml-job.outputs.job_name }}'].assetPath" -o tsv)
+            echo "Model Name: $MODEL_NAME"
+            echo "Model Path: $MODEL_PATH"
+
+            # Register the model
+            - name: Register the Model
+              run: az ml model register --model-name $MODEL_NAME --asset-path $MODEL_PATH
+
+            # Deploy the model
+            - name: Deploy the Model
+              run: az ml model deploy --model-name $MODEL_NAME --service-name hac-model-service --workspace-name assignmentsnobin --resource-group assignment-snobin
+          fi
+
+      # Output the model name and path for later use
+      echo "::set-output name=model_name::${MODEL_NAME}"
+      echo "::set-output name=model_path::${MODEL_PATH}"
