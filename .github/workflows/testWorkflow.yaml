@@ -51,6 +51,9 @@ jobs:
           echo "Final Job Status: $job_status"
 
           if [ "$job_status" == "Completed" ]; then
+            # Set the Azure ML workspace context
+            az ml folder attach --workspace-name assignmentsnobin --resource-group assignment-snobin
+
             # Get model details if the job is completed
             echo "Fetching model details for job: $AZURE_ML_JOB_NAME"
             az ml model list --query "[?tags.job_name=='$AZURE_ML_JOB_NAME']" -o table
