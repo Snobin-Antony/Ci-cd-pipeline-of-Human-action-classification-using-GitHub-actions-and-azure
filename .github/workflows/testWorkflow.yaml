@@ -47,13 +47,13 @@ jobs:
       - name: Get Azure ML Job Status
         id: get-job-status
         run: |
-          job_status=$(az ml job show --resource-group assignment-snobin --workspace-name assignmentsnobin --name ${{ steps.create-azure-ml-job.outputs.job_name }} --query 'status' -o tsv)
+          job_status=$(az ml job show --resource-group assignment-snobin --workspace-name assignmentsnobin --name $AZURE_ML_JOB_NAME --query 'status' -o tsv)
           echo "Final Job Status: $job_status"
 
           if [ "$job_status" == "Completed" ]; then
             # Get model details if the job is completed
-            export MODEL_NAME=$(az ml model list --query "[?tags.job_name=='${{ steps.create-azure-ml-job.outputs.job_name }}'].name" -o tsv)
-            export MODEL_PATH=$(az ml model list --query "[?tags.job_name=='${{ steps.create-azure-ml-job.outputs.job_name }}'].assetPath" -o tsv)
+            export MODEL_NAME=$(az ml model list --query "[?tags.job_name=='$AZURE_ML_JOB_NAME'].name" -o tsv)
+            export MODEL_PATH=$(az ml model list --query "[?tags.job_name=='$AZURE_ML_JOB_NAME'].assetPath" -o tsv)
             echo "Model Name: $MODEL_NAME"
             echo "Model Path: $MODEL_PATH"
 
