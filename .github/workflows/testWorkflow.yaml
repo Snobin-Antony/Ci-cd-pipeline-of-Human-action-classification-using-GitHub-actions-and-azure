@@ -41,6 +41,7 @@ jobs:
               sleep 60  # Adjust the sleep interval as needed
             fi
           done
+        shell: bash
       # Get the final status of the Azure ML job
       - name: Get Azure ML Job Status
         id: get-job-status
