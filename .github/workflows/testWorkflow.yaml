@@ -45,3 +45,13 @@ jobs:
         run: |
           job_status=$(az ml job show --resource-group assignment-snobin --workspace-name assignmentsnobin --name human-action-classifier-job --query 'status' -o tsv)
           echo "Final Job Status: $job_status"
+      # Register the model if the job is completed
+      - name: Register the Model
+        if: ${{ steps.wait-for-job.outputs.job_status == 'Completed' }}
+        run: |
+          az ml model register --model-name hac_model --asset-path azureml:hac_model:1
+      # Deploy the model if the model is registered
+      - name: Deploy the Model
+        if: ${{ success() && steps.wait-for-job.outputs.job_status == 'Completed' }}
+        run: |
+          az ml model deploy --model-name hac_model --deployment-name hac_model_staging --deployment-cluster assignment-ml-compute --overwrite
