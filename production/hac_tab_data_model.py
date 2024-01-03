@@ -57,7 +57,7 @@ x_data_df = data_df.drop(['subject', 'Activity'], axis=1)
 # x_data_df= x_data_df.iloc[:,0:2]
 
 # Set the number of models and splits
-num_models = 3
+num_models = 1
 
 for i in range(num_models):
     #Split the data and keep 20% back for testing later
