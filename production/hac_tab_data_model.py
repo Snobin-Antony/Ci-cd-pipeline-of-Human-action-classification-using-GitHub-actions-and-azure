@@ -24,7 +24,6 @@ warnings.filterwarnings("ignore")
 # Get the arugments we need to avoid fixing the dataset path in code
 parser = argparse.ArgumentParser()
 parser.add_argument("--data", type=str, required=True, help='Dataset path')
-parser.add_argument("--model", type=str, required=True, help='Model path')
 args = parser.parse_args()
 mlflow.autolog()
 mlflow.log_param("hello_param", "action_classifier")

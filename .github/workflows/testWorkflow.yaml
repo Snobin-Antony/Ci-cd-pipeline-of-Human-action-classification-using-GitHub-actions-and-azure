@@ -52,26 +52,58 @@ jobs:
 
           if [ "$job_status" == "Completed" ]; then
             # Get model details if the job is completed
+            echo "Fetching model details for job: $AZURE_ML_JOB_NAME"
+            az ml model list --query "[?tags.job_name=='$AZURE_ML_JOB_NAME']" -o table
+
             MODEL_NAME=$(az ml model list --query "[?tags.job_name=='$AZURE_ML_JOB_NAME'].name" -o tsv || echo "")
             MODEL_PATH=$(az ml model list --query "[?tags.job_name=='$AZURE_ML_JOB_NAME'].assetPath" -o tsv || echo "")
             echo "Model Name: $MODEL_NAME"
             echo "Model Path: $MODEL_PATH"
 
-            # Register the model
+            # Continue with other steps
             if [ -n "$MODEL_NAME" ] && [ -n "$MODEL_PATH" ]; then
-              - name: Register the Model
-              run: az ml model register --model-name $MODEL_NAME --asset-path $MODEL_PATH
-            else
-              echo "Model Name and Path are empty"
-              exit 1
-            fi
+              # Register the model
+              az ml model register --model-name $MODEL_NAME --asset-path $MODEL_PATH
 
-            # Deploy the model
-            if [ -n "$MODEL_NAME" ] && [ -n "$MODEL_PATH" ]; then
-              - name: Deploy the Model
-              run: az ml model deploy --model-name $MODEL_NAME --service-name hac-model-service --workspace-name assignmentsnobin --resource-group assignment-snobin
+              # Deploy the model
+              az ml model deploy --model-name $MODEL_NAME --service-name hac-model-service --workspace-name assignmentsnobin --resource-group assignment-snobin
             else
-              echo "Model Name and Path are empty"
-              exit 1
+              echo "Error: Model details not found."
             fi
           fi
+
+
+
+
+      # # Get the final status of the Azure ML job
+      # - name: Get Azure ML Job Status
+      #   id: get-job-status
+      #   run: |
+      #     job_status=$(az ml job show --resource-group assignment-snobin --workspace-name assignmentsnobin --name $AZURE_ML_JOB_NAME --query 'status' -o tsv)
+      #     echo "Final Job Status: $job_status"
+
+      #     if [ "$job_status" == "Completed" ]; then
+      #       # Get model details if the job is completed
+      #       MODEL_NAME=$(az ml model list --query "[?tags.job_name=='$AZURE_ML_JOB_NAME'].name" -o tsv || echo "")
+      #       MODEL_PATH=$(az ml model list --query "[?tags.job_name=='$AZURE_ML_JOB_NAME'].assetPath" -o tsv || echo "")
+      #       echo "Model Name: $MODEL_NAME"
+      #       echo "Model Path: $MODEL_PATH"
+
+      #       # Register the model
+      #       if [ -n "$MODEL_NAME" ] && [ -n "$MODEL_PATH" ]; then
+      #         - name: Register the Model
+      #         run: az ml model register --model-name $MODEL_NAME --asset-path $MODEL_PATH
+      #       else
+      #         echo "Model Name and Path are empty"
+      #         exit 1
+      #       fi
+
+      #       # Deploy the model
+      #       if [ -n "$MODEL_NAME" ] && [ -n "$MODEL_PATH" ]; then
+      #         - name: Deploy the Model
+      #         run: az ml model deploy --model-name $MODEL_NAME --service-name hac-model-service --workspace-name assignmentsnobin --resource-group assignment-snobin
+      #       else
+      #         echo "Model Name and Path are empty"
+      #         exit 1
+      #       fi
+      #     fi
