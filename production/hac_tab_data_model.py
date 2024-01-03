@@ -64,8 +64,12 @@ for i in range(num_models):
     print("Train length", len(X_train))
     print("Test length", len(X_test))
 
-    parameters = {'C':np.arange(10,61,10), 'penalty':['l2','l1']}
-    lr_classifier = LogisticRegression()
+    # Create Decision Tree Classifier
+    parameters = {'max_depth': np.arange(3, 15),'min_samples_split': np.arange(2, 11),'min_samples_leaf': np.arange(1, 11),'criterion': ['gini', 'entropy']}
+    lr_classifier = DecisionTreeClassifier()
+    ## Create Logistic Regression Classifier
+    # parameters = {'C':np.arange(10,61,10), 'penalty':['l2','l1']}
+    # lr_classifier = LogisticRegression()
     lr_classifier_rs = RandomizedSearchCV(lr_classifier, param_distributions=parameters, cv=5,random_state = 42)
     lr_classifier_rs.fit(X_train, Y_train)
     y_pred = lr_classifier_rs.predict(X_test)
