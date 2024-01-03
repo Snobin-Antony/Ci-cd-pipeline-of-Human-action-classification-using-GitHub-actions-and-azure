@@ -41,7 +41,6 @@ jobs:
               sleep 60  # Adjust the sleep interval as needed
             fi
           done
-        shell: bash
       # Get the final status of the Azure ML job
       - name: Get Azure ML Job Status
         id: get-job-status
@@ -64,7 +63,5 @@ jobs:
             - name: Deploy the Model
               run: az ml model deploy --model-name $MODEL_NAME --service-name hac-model-service --workspace-name assignmentsnobin --resource-group assignment-snobin
           fi
-
-      # Output the model name and path for later use
-      echo "::set-output name=model_name::${MODEL_NAME}"
-      echo "::set-output name=model_path::${MODEL_PATH}"
+        done
+      shell: bash
