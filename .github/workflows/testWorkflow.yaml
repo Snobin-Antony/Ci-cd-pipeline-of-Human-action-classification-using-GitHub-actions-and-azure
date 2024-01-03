@@ -63,4 +63,3 @@ jobs:
             - name: Deploy the Model
               run: az ml model deploy --model-name $MODEL_NAME --service-name hac-model-service --workspace-name assignmentsnobin --resource-group assignment-snobin
           fi
-      shell: bash
