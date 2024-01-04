@@ -20,13 +20,17 @@ from sklearn.model_selection import train_test_split
 import warnings
 warnings.filterwarnings("ignore")
 
+from azureml.core import Workspace, Model, Environment
+from azureml.core.model import InferenceConfig
+from azureml.core.webservice import AciWebservice
+ws = Workspace.from_config()
+
 # Get the arugments we need to avoid fixing the dataset path in code
 parser = argparse.ArgumentParser()
 parser.add_argument("--data", type=str, required=True, help='Dataset path')
 args = parser.parse_args()
 mlflow.autolog()
 mlflow.log_param("hello_param", "action_classifier")
-ws = Workspace.from_config()
 
 data_csv=pd.read_csv(args.data)
 # data_csv = pd.read_csv("human-activity-recognition-with-smartphones/human-activity-recognition-with-smartphones.csv")
@@ -133,10 +137,6 @@ mlflow.sklearn.save_model(
     sk_model=lr_classifier_rs,
     path=os.path.join(registered_model_name, "hac_model"),
 )
-
-from azureml.core import Workspace, Model, Environment
-from azureml.core.model import InferenceConfig
-from azureml.core.webservice import AciWebservice
 
 # Replace with your workspace details
 subscription_id = 'bf0717bf-dfd1-4019-a2b6-aa46e3899a4d'
