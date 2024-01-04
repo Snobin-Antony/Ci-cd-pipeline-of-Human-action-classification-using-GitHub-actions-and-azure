@@ -113,7 +113,7 @@ def plot_confusion_matrix(cm,lables):
 cm = confusion_matrix(Y_test.values,y_pred)
 plot_confusion_matrix(cm, np.unique(y_pred))  # plotting confusion matrix
 
-registered_model_name="sklearn-iris-flower-classify-model"
+registered_model_name="hac-model"
 
 ##########################
 #<save and register model>
@@ -132,3 +132,28 @@ mlflow.sklearn.save_model(
     sk_model=lr_classifier_rs,
     path=os.path.join(registered_model_name, "hac_model"),
 )
+
+##########################
+#<deploy model using MLFlow>
+##########################
+
+# Deploy the registered model using MLflow's deployment capabilities
+print("Deploying the model via MLFlow")
+
+# Set deployment parameters (e.g., target URI, environment, etc.)
+# Here, you might need to define your deployment environment or use the default one.
+# For example:
+environment = mlflow.pyfunc.get_default_conda_env()
+# Or, if you have a specific environment:
+# environment = "path_to_your_environment.yml"
+
+# Deploy the model
+mlflow.sklearn.deploy(
+    model_uri=f"models:/{registered_model_name}/production",
+    name="deployed-hac-model",
+    service_id=None,
+    execution_environment=environment,
+    synchronous=True
+)
+
+print("Model deployed successfully!")
