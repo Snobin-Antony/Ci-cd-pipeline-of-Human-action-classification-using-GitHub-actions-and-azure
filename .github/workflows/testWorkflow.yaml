@@ -22,6 +22,8 @@ jobs:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
       - name: Test azure login by getting details
         run: az account show
+      - name: test python run
+        - script: python model_deploy.py --job_name Chakka
       - name: add extension
         run: az extension add --name ml
       # Create Job and capture the job name in an environment variable
@@ -51,8 +53,7 @@ jobs:
           echo "Final Job Status: $job_status"
 
           if [ "$job_status" == "Completed" ]; then      
-            az ml model register --model-name hac_model --asset-path best_estimator/model.pkl
-            az ml model deploy --model-name hac_model --service-name hac-model-service --workspace-name assignmentsnobin --resource-group assignment-snobin
+          - script: python model_deploy.py --job_name $AZURE_ML_JOB_NAME
           fi
 
 

@@ -19,9 +19,6 @@ from sklearn.model_selection import train_test_split
 import warnings
 warnings.filterwarnings("ignore")
 
-# Azure ML dependencies
-from azureml.core import Workspace, Model
-
 # Get the arugments we need to avoid fixing the dataset path in code
 parser = argparse.ArgumentParser()
 parser.add_argument("--data", type=str, required=True, help='Dataset path')
@@ -123,21 +120,8 @@ for i in range(num_models):
     cm = confusion_matrix(Y_test.values,y_pred)
     plot_confusion_matrix(cm, np.unique(y_pred), i)  # plotting confusion matrix
 
-# Now, register the model in Azure ML workspace
-# Replace with your workspace details
-subscription_id = 'bf0717bf-dfd1-4019-a2b6-aa46e3899a4d'
-resource_group = 'assignment-snobin'
-workspace_name = 'assignmentsnobin'
-
-# Load the workspace
-ws = Workspace(workspace_name, resource_group, subscription_id)
-
-# Register the model in Azure ML workspace
-model_path = f"model_{i}"
-model = mlflow.azureml.register(model_path=model_path, model_name="hac_model", workspace=ws)
-
-
-# Deploy the registered model as a web service in Azure Container Instances (ACI)
-# Replace 'your_service_name' with your desired service name
-service_name = 'hac-model-service'
-mlflow.azureml.deploy(model_path=model, workspace=ws, service_name=service_name)
+# # Now, register the model in Azure ML workspace
+# # Replace with your workspace details
+# subscription_id = 'bf0717bf-dfd1-4019-a2b6-aa46e3899a4d'
+# resource_group = 'assignment-snobin'
+# workspace_name = 'assignmentsnobin'
