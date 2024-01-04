@@ -77,7 +77,7 @@ model = ml_client.models.get(name=registered_model_name, version=latest_model_ve
 # if you run into an out of quota error, change the instance_type to a comparable VM that is available.\
 # Learn more on https://azure.microsoft.com/en-us/pricing/details/machine-learning/.
 blue_deployment = ManagedOnlineDeployment(
-    name="hac_model_blue",
+    name="hac-model-blue",
     endpoint_name=online_endpoint_name,
     model=model,
     instance_type="Standard_D2as_v4",
