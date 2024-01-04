@@ -136,6 +136,7 @@ ws = Workspace(workspace_name, resource_group, subscription_id)
 model_path = f"model_{i}"
 model = mlflow.azureml.register(model_path=model_path, model_name="hac_model", workspace=ws)
 
+
 # Deploy the registered model as a web service in Azure Container Instances (ACI)
 # Replace 'your_service_name' with your desired service name
 service_name = 'hac-model-service'
