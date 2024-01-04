@@ -19,7 +19,8 @@ from sklearn.model_selection import train_test_split
 import warnings
 warnings.filterwarnings("ignore")
 
-
+from azureml.core import Workspace, Model
+from azureml.core.run import Run
 
 # Get the arugments we need to avoid fixing the dataset path in code
 parser = argparse.ArgumentParser()
@@ -117,3 +118,40 @@ for i in range(num_models):
     # Plot the confusion matrix
     cm = confusion_matrix(Y_test.values,y_pred)
     plot_confusion_matrix(cm, np.unique(y_pred), i)  # plotting confusion matrix
+
+
+# Load the Azure ML workspace
+workspace = Workspace.from_config()
+
+# Define your experiment name
+experiment_name = 'coursework-ml-compute-human-action-classification'
+
+# Retrieve the run associated with the experiment
+experiment = Run.get_context().experiment
+runs = experiment.get_runs()
+best_run = None
+best_accuracy = 0.0
+
+# Iterate through runs to find the best model based on accuracy (modify based on your metric)
+for run in runs:
+    metrics = run.get_metrics()
+    
+    if 'Model_Accuracy' in metrics:  # Replace with your actual metric name
+        accuracy = metrics['Model_Accuracy']
+
+        # Update best model if current model is better
+        if accuracy > best_accuracy:
+            best_accuracy = accuracy
+            best_run = run
+
+# If a best run is found, register the corresponding model
+if best_run:
+    model_name = 'best_hac_model'
+    model_path = 'outputs/model'  # Update with your model path
+
+    # Register the best model
+    best_run.register_model(model_name=model_name, model_path=model_path)
+
+    print(f"Best model registered with name: {model_name}")
+else:
+    print("No best model found.")
