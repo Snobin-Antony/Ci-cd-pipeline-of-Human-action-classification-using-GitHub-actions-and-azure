@@ -115,73 +115,8 @@ def plot_confusion_matrix(cm,lables):
 cm = confusion_matrix(Y_test.values,y_pred)
 plot_confusion_matrix(cm, np.unique(y_pred))  # plotting confusion matrix
 
-registered_model_name="hac-model"
-
-##########################
-#<save and register model>
-##########################
-# Registering the model to the workspace
-print("Registering the model via MLFlow")
-mlflow.sklearn.log_model(
-    sk_model=lr_classifier_rs,
-    registered_model_name=registered_model_name,
-    artifact_path=registered_model_name
-)
-
-# # Saving the model to a file
-print("Saving the model via MLFlow")
-mlflow.sklearn.save_model(
-    sk_model=lr_classifier_rs,
-    path=os.path.join(registered_model_name, "hac_model"),
-)
-
-print("Model saved")
 # # Replace with your workspace details
 # subscription_id = 'bf0717bf-dfd1-4019-a2b6-aa46e3899a4d'
 # resource_group = 'assignment-snobin'
 # workspace_name = 'assignmentsnobin'
 # service_name = 'hac-classifier-service'
-
-# authenticate
-credential = DefaultAzureCredential()
-
-# Get a handle to the workspace
-ml_client = MLClient(
-    credential=credential,
-    subscription_id = 'bf0717bf-dfd1-4019-a2b6-aa46e3899a4d',
-    resource_group_name="assignment-snobin",
-    workspace_name="assignmentsnobin",
-)
-
-# Let's pick the latest version of the model
-latest_model_version = max(
-    [int(m.version) for m in ml_client.models.list(name=registered_model_name)]
-)
-
-print(latest_model_version)
-import uuid
-# Create a unique name for the endpoint
-online_endpoint_name = "credit-endpoint-" + str(uuid.uuid4())[:8]
-
-from azure.ai.ml.entities import ManagedOnlineEndpoint
-
-# define an online endpoint
-endpoint = ManagedOnlineEndpoint(
-    name=online_endpoint_name,
-    description="this is an online endpoint",
-    auth_mode="key",
-    tags={
-        "training_dataset": "credit_defaults",
-    },
-)
-
-# create the online endpoint
-# expect the endpoint to take approximately 2 minutes.
-
-endpoint = ml_client.online_endpoints.begin_create_or_update(endpoint).result()
-
-endpoint = ml_client.online_endpoints.get(name=online_endpoint_name)
-
-print(
-    f'Endpoint "{endpoint.name}" with provisioning state "{endpoint.provisioning_state}" is retrieved'
-)
