@@ -43,36 +43,21 @@ jobs:
             fi
           done
         shell: bash
-      # Get the final status of the Azure ML job
-      - name: Get Azure ML Job Status
-        id: get-job-status
+      # Register and Deploy the model
+      - name: Register and Deploy the Model
+        id: register-and-deploy
         run: |
           job_status=$(az ml job show --resource-group assignment-snobin --workspace-name assignmentsnobin --name $AZURE_ML_JOB_NAME --query 'status' -o tsv)
           echo "Final Job Status: $job_status"
 
           if [ "$job_status" == "Completed" ]; then
-            # Set the Azure ML workspace context
-            az ml folder attach --workspace-name assignmentsnobin --resource-group assignment-snobin
+            # Register the model
+            - name: Register the Model
+            run: az ml model register --model-name hac_model --asset-path best_estimator/model.pkl
 
-            # Get model details if the job is completed
-            echo "Fetching model details for job: $AZURE_ML_JOB_NAME"
-            az ml model list --query "[?tags.job_name=='$AZURE_ML_JOB_NAME']" -o table
-
-            MODEL_NAME=$(az ml model list --query "[?tags.job_name=='$AZURE_ML_JOB_NAME'].name" -o tsv || echo "")
-            MODEL_PATH=$(az ml model list --query "[?tags.job_name=='$AZURE_ML_JOB_NAME'].assetPath" -o tsv || echo "")
-            echo "Model Name: $MODEL_NAME"
-            echo "Model Path: $MODEL_PATH"
-
-            # Continue with other steps
-            if [ -n "$MODEL_NAME" ] && [ -n "$MODEL_PATH" ]; then
-              # Register the model
-              az ml model register --model-name $MODEL_NAME --asset-path $MODEL_PATH
-
-              # Deploy the model
-              az ml model deploy --model-name $MODEL_NAME --service-name hac-model-service --workspace-name assignmentsnobin --resource-group assignment-snobin
-            else
-              echo "Error: Model details not found."
-            fi
+            # Deploy the model
+            - name: Register the Model
+            run: az ml model deploy --model-name hac_model --service-name hac-model-service --workspace-name assignmentsnobin --resource-group assignment-snobin
           fi
 
 
