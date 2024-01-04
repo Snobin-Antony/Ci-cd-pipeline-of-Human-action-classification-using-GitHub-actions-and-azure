@@ -133,27 +133,35 @@ mlflow.sklearn.save_model(
     path=os.path.join(registered_model_name, "hac_model"),
 )
 
-##########################
-#<deploy model using MLFlow>
-##########################
+from azureml.core import Workspace, Model, Environment
+from azureml.core.model import InferenceConfig
+from azureml.core.webservice import AciWebservice
 
-# Deploy the registered model using MLflow's deployment capabilities
-print("Deploying the model via MLFlow")
+# Replace with your workspace details
+subscription_id = 'bf0717bf-dfd1-4019-a2b6-aa46e3899a4d'
+resource_group = 'assignment-snobin'
+workspace_name = 'assignmentsnobin'
+service_name = 'hac-classifier-service'
 
-# Set deployment parameters (e.g., target URI, environment, etc.)
-# Here, you might need to define your deployment environment or use the default one.
-# For example:
-environment = mlflow.pyfunc.get_default_conda_env()
-# Or, if you have a specific environment:
-# environment = "path_to_your_environment.yml"
+# Load the Azure ML workspace
+ws = Workspace(subscription_id, resource_group, workspace_name)
 
-# Deploy the model
-mlflow.sklearn.deploy(
-    model_uri=f"models:/{registered_model_name}/production",
-    name="deployed-hac-model",
-    service_id=None,
-    execution_environment=environment,
-    synchronous=True
+# Retrieve the registered model
+model = Model(ws, name=registered_model_name, version=1)  # Update version as needed
+
+# Define the inference configuration
+inference_config = InferenceConfig(entry_script='score.py', environment=Environment.get(ws, "coursework-ml-compute-human-action-classification"))
+
+# Deploy the model as a web service using Azure Container Instances (ACI)
+service = Model.deploy(
+    workspace=ws,
+    name=service_name,
+    models=[model],
+    inference_config=inference_config,
+    deployment_config=AciWebservice.deploy_configuration(cpu_cores=1, memory_gb=1),
+    overwrite=True  # Set to True if you want to overwrite an existing service with the same name
 )
 
-print("Model deployed successfully!")
+# Wait for the deployment to complete and display the service details
+service.wait_for_deployment(show_output=True)
+print(service.scoring_uri)
