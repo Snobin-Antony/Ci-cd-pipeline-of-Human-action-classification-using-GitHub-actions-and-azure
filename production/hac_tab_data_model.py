@@ -1,3 +1,4 @@
+import os
 import json
 import mlflow
 import argparse
@@ -18,9 +19,6 @@ from sklearn.model_selection import train_test_split
 
 import warnings
 warnings.filterwarnings("ignore")
-
-from azureml.core import Workspace, Model
-from azureml.core.run import Run
 
 # Get the arugments we need to avoid fixing the dataset path in code
 parser = argparse.ArgumentParser()
@@ -56,114 +54,81 @@ y_data_df = data_df.Activity
 x_data_df = data_df.drop(['subject', 'Activity'], axis=1)
 # x_data_df= x_data_df.iloc[:,0:2]
 
-# Set the number of models and splits
-num_models = 1
+#Split the data and keep 20% back for testing later
+X_train, X_test, Y_train, Y_test = train_test_split(x_data_df, y_data_df, test_size=0.20)
+print("Train length", len(X_train))
+print("Test length", len(X_test))
 
-for i in range(num_models):
-    #Split the data and keep 20% back for testing later
-    X_train, X_test, Y_train, Y_test = train_test_split(x_data_df, y_data_df, test_size=0.20, random_state=i)
-    print("Train length", len(X_train))
-    print("Test length", len(X_test))
+# # Create Decision Tree Classifier
+# parameters = {'max_depth': np.arange(3, 15),'min_samples_split': np.arange(2, 11),'min_samples_leaf': np.arange(1, 11),'criterion': ['gini', 'entropy']}
+# lr_classifier = DecisionTreeClassifier()
+# Create Logistic Regression Classifier
+parameters = {'C':np.arange(10,61,10), 'penalty':['l2','l1']}
+lr_classifier = LogisticRegression()
+lr_classifier_rs = RandomizedSearchCV(lr_classifier, param_distributions=parameters, cv=5,random_state = 42)
+lr_classifier_rs.fit(X_train, Y_train)
+y_pred = lr_classifier_rs.predict(X_test)
 
-    # Create Decision Tree Classifier
-    parameters = {'max_depth': np.arange(3, 15),'min_samples_split': np.arange(2, 11),'min_samples_leaf': np.arange(1, 11),'criterion': ['gini', 'entropy']}
-    lr_classifier = DecisionTreeClassifier()
-    # Create Logistic Regression Classifier
-    parameters = {'C':np.arange(10,61,10), 'penalty':['l2','l1']}
-    lr_classifier = LogisticRegression()
-    lr_classifier_rs = RandomizedSearchCV(lr_classifier, param_distributions=parameters, cv=5,random_state = 42)
-    lr_classifier_rs.fit(X_train, Y_train)
-    y_pred = lr_classifier_rs.predict(X_test)
+lr_accuracy = accuracy_score(y_true=Y_test, y_pred=y_pred)
+print(f'Model - Accuracy: {lr_accuracy}')
+mlflow.log_metric(f'Model_Accuracy:',lr_accuracy)
 
-    lr_accuracy = accuracy_score(y_true=Y_test, y_pred=y_pred)
-    print(f'Model {i+1} - Accuracy: {lr_accuracy}')
-    mlflow.log_metric(f'Model_{i+1}_Accuracy:',lr_accuracy)
+# Calculate AUC
+Y_scores = lr_classifier_rs.predict_proba(X_test)
+#print(Y_scores)
+auc = roc_auc_score(Y_test, Y_scores, multi_class='ovr')
+print(f'Model - AUC: {auc}')
+mlflow.log_metric(f'Model_AUC:', auc)
 
-    # Calculate AUC
-    Y_scores = lr_classifier_rs.predict_proba(X_test)
-    #print(Y_scores)
-    auc = roc_auc_score(Y_test, Y_scores, multi_class='ovr')
-    print(f'Model {i+1} - AUC: {auc}')
-    mlflow.log_metric(f'Model_{i+1}_AUC:', auc)
+## Make predictions
+# output_class = lr_classifier_rs.predict(X_test.iloc[0:2])
+output_class = lr_classifier_rs.predict(X_test.iloc[[1469]])
+# output_class_label = original_labels[output_class]
+# Convert the array to a list and then to JSON
+activity_json = json.dumps(output_class.tolist())
+# Print the predicted class
+print(f"Predicted class: {activity_json}")
 
-    ## Make predictions
-    # output_class = lr_classifier_rs.predict(X_test.iloc[0:2])
-    output_class = lr_classifier_rs.predict(X_test.iloc[[1469]])
-    # output_class_label = original_labels[output_class]
-    # Convert the array to a list and then to JSON
-    activity_json = json.dumps(output_class.tolist())
-    # Print the predicted class
-    print(f"Predicted class: {activity_json}")
+# function to plot confusion matrix
+def plot_confusion_matrix(cm,lables):
+    # labels  = original_labels[lables] 
+    fig, ax = plt.subplots(figsize=(12,8)) # for plotting confusion matrix as image
+    im = ax.imshow(cm, interpolation='nearest', cmap=plt.cm.Blues)
+    ax.figure.colorbar(im, ax=ax)
+    ax.set(xticks=np.arange(cm.shape[1]),
+    yticks=np.arange(cm.shape[0]),
+    xticklabels=lables, yticklabels=lables,
+    ylabel='True label',
+    xlabel='Predicted label')
+    plt.xticks(rotation = 90)
+    plt.title(f'Model Confusion Matrix\nAUC: {auc:.4f}')
+    thresh = cm.max() / 2.
+    for i in range(cm.shape[0]):
+        for j in range(cm.shape[1]):
+            ax.text(j, i, int(cm[i, j]),ha="center", va="center",color="white" if cm[i, j] > thresh else "black")
+    fig.tight_layout()
+    plt.show()
 
-    # function to plot confusion matrix
-    def plot_confusion_matrix(cm,lables, i):
-        # labels  = original_labels[lables] 
-        fig, ax = plt.subplots(figsize=(12,8)) # for plotting confusion matrix as image
-        im = ax.imshow(cm, interpolation='nearest', cmap=plt.cm.Blues)
-        ax.figure.colorbar(im, ax=ax)
-        ax.set(xticks=np.arange(cm.shape[1]),
-        yticks=np.arange(cm.shape[0]),
-        xticklabels=lables, yticklabels=lables,
-        ylabel='True label',
-        xlabel='Predicted label')
-        plt.xticks(rotation = 90)
-        plt.title(f'Model {i+1} Confusion Matrix\nAUC: {auc:.4f}')
-        thresh = cm.max() / 2.
-        for i in range(cm.shape[0]):
-            for j in range(cm.shape[1]):
-                ax.text(j, i, int(cm[i, j]),ha="center", va="center",color="white" if cm[i, j] > thresh else "black")
-        fig.tight_layout()
-        plt.show()
+# Plot the confusion matrix
+cm = confusion_matrix(Y_test.values,y_pred)
+plot_confusion_matrix(cm, np.unique(y_pred))  # plotting confusion matrix
 
-    # Plot the confusion matrix
-    cm = confusion_matrix(Y_test.values,y_pred)
-    plot_confusion_matrix(cm, np.unique(y_pred), i)  # plotting confusion matrix
+registered_model_name="sklearn-iris-flower-classify-model"
 
+##########################
+#<save and register model>
+##########################
+# Registering the model to the workspace
+print("Registering the model via MLFlow")
+mlflow.sklearn.log_model(
+    sk_model=lr_classifier_rs,
+    registered_model_name=registered_model_name,
+    artifact_path=registered_model_name
+)
 
-# Load the Azure ML workspace
-# workspace = Workspace.from_config()
-
-# Define your experiment name
-experiment_name = 'coursework-ml-compute-human-action-classification'
-
-# Retrieve the current run
-current_run = mlflow.active_run()
-
-# Retrieve all runs for the experiment
-runs = mlflow.search_runs(filter_string=f"tags.mlflow.runName='{experiment_name}'")
-
-# Find the best run based on some criteria (replace this with your logic)
-print(runs.loc[runs['run_id']])
-print(runs.loc[runs['experiment_id']])
-print(runs.loc[runs['artifact_uri']])
-
-
-# # Retrieve the run associated with the experiment
-# experiment = Run.get_context().experiment
-# runs = experiment.get_runs()
-# best_run = None
-# best_accuracy = 0.0
-
-# # Iterate through runs to find the best model based on accuracy (modify based on your metric)
-# for run in runs:
-#     metrics = run.get_metrics()
-    
-#     if 'Model_Accuracy' in metrics:  # Replace with your actual metric name
-#         accuracy = metrics['Model_Accuracy']
-
-#         # Update best model if current model is better
-#         if accuracy > best_accuracy:
-#             best_accuracy = accuracy
-#             best_run = run
-
-# # If a best run is found, register the corresponding model
-# if best_run:
-#     model_name = 'best_hac_model'
-#     model_path = 'outputs/model'  # Update with your model path
-
-#     # Register the best model
-#     best_run.register_model(model_name=model_name, model_path=model_path)
-
-#     print(f"Best model registered with name: {model_name}")
-# else:
-#     print("No best model found.")
+# # Saving the model to a file
+print("Saving the model via MLFlow")
+mlflow.sklearn.save_model(
+    sk_model=lr_classifier_rs,
+    path=os.path.join(registered_model_name, "hac_model"),
+)
