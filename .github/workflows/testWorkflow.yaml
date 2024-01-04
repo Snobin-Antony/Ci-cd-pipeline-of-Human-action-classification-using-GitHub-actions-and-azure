@@ -17,7 +17,7 @@ jobs:
       - name: List files
         run: ls ${{ github.workspace }}
       - name: test python run 
-        - script: python model_deploy.py --job_name Chakka
+        run: python model_deploy.py --job_name Chakka
       - name: Log into Azure
         uses: azure/login@v1
         with:
