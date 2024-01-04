@@ -22,6 +22,8 @@ jobs:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
       - name: Test azure login by getting details
         run: az account show
+      - name: Install dependencies
+        run: pip install -r production/requirements.txt
       - name: test python run 
         run: python production/model_deploy.py --job_name Chakka
       - name: add extension
