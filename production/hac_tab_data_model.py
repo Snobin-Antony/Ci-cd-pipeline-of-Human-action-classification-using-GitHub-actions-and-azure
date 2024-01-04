@@ -1,4 +1,3 @@
-import os
 import json
 import mlflow
 import argparse
@@ -16,8 +15,6 @@ from sklearn.metrics import roc_auc_score
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import confusion_matrix
 from sklearn.model_selection import train_test_split
-from azure.ai.ml import MLClient
-from azure.identity import DefaultAzureCredential
 
 import warnings
 warnings.filterwarnings("ignore")
