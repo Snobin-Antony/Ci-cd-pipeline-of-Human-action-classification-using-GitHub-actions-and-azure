@@ -16,14 +16,14 @@ jobs:
       - run: echo "Repository cloned, I think I'm ready. The files look like this:"
       - name: List files
         run: ls ${{ github.workspace }}
-      - name: test python run 
-        run: python model_deploy.py --job_name Chakka
       - name: Log into Azure
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
       - name: Test azure login by getting details
         run: az account show
+      - name: test python run 
+        run: python production/model_deploy.py --job_name Chakka
       - name: add extension
         run: az extension add --name ml
       # Create Job and capture the job name in an environment variable

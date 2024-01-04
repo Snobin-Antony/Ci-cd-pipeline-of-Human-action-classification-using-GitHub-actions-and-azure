@@ -19,7 +19,7 @@ credential = AzureCliCredential()
 parser = argparse.ArgumentParser()
 parser.add_argument("--job_name", type=str, required=True, help='job name to register a model')
 args = parser.parse_args()
-
+print(args.job_name)    
 # # Get a handle to the workspace
 # ml_client = MLClient(
 #     credential=credential,
