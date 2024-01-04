@@ -50,13 +50,8 @@ jobs:
           job_status=$(az ml job show --resource-group assignment-snobin --workspace-name assignmentsnobin --name $AZURE_ML_JOB_NAME --query 'status' -o tsv)
           echo "Final Job Status: $job_status"
 
-          if [ "$job_status" == "Completed" ]; then
-            # Register the model
-            - name: Register the Model
+          if [ "$job_status" == "Completed" ]; then      
             run: az ml model register --model-name hac_model --asset-path best_estimator/model.pkl
-
-            # Deploy the model
-            - name: Register the Model
             run: az ml model deploy --model-name hac_model --service-name hac-model-service --workspace-name assignmentsnobin --resource-group assignment-snobin
           fi
 
