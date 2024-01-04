@@ -133,6 +133,7 @@ mlflow.sklearn.save_model(
     path=os.path.join(registered_model_name, "hac_model"),
 )
 
+print("Model saved")
 # # Replace with your workspace details
 # subscription_id = 'bf0717bf-dfd1-4019-a2b6-aa46e3899a4d'
 # resource_group = 'assignment-snobin'
