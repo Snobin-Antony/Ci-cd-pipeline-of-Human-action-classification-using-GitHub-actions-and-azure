@@ -22,7 +22,7 @@ jobs:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
       - name: Test azure login by getting details
         run: az account show
-      - name: test python run
+      - name: test python run 
         - script: python model_deploy.py --job_name Chakka
       - name: add extension
         run: az extension add --name ml
