@@ -21,7 +21,6 @@ warnings.filterwarnings("ignore")
 
 # Azure ML dependencies
 from azureml.core import Workspace, Model
-import mlflow.azureml
 
 # Get the arugments we need to avoid fixing the dataset path in code
 parser = argparse.ArgumentParser()
