@@ -126,32 +126,44 @@ for i in range(num_models):
 # Define your experiment name
 experiment_name = 'coursework-ml-compute-human-action-classification'
 
-# Retrieve the run associated with the experiment
-experiment = Run.get_context().experiment
-runs = experiment.get_runs()
-best_run = None
-best_accuracy = 0.0
+# Retrieve the current run
+current_run = mlflow.active_run()
 
-# Iterate through runs to find the best model based on accuracy (modify based on your metric)
-for run in runs:
-    metrics = run.get_metrics()
+# Retrieve all runs for the experiment
+runs = mlflow.search_runs(filter_string=f"tags.mlflow.runName='{experiment_name}'")
+
+# Find the best run based on some criteria (replace this with your logic)
+print(runs.loc[runs['run_id']])
+print(runs.loc[runs['experiment_id']])
+print(runs.loc[runs['artifact_uri']])
+
+
+# # Retrieve the run associated with the experiment
+# experiment = Run.get_context().experiment
+# runs = experiment.get_runs()
+# best_run = None
+# best_accuracy = 0.0
+
+# # Iterate through runs to find the best model based on accuracy (modify based on your metric)
+# for run in runs:
+#     metrics = run.get_metrics()
     
-    if 'Model_Accuracy' in metrics:  # Replace with your actual metric name
-        accuracy = metrics['Model_Accuracy']
+#     if 'Model_Accuracy' in metrics:  # Replace with your actual metric name
+#         accuracy = metrics['Model_Accuracy']
 
-        # Update best model if current model is better
-        if accuracy > best_accuracy:
-            best_accuracy = accuracy
-            best_run = run
+#         # Update best model if current model is better
+#         if accuracy > best_accuracy:
+#             best_accuracy = accuracy
+#             best_run = run
 
-# If a best run is found, register the corresponding model
-if best_run:
-    model_name = 'best_hac_model'
-    model_path = 'outputs/model'  # Update with your model path
+# # If a best run is found, register the corresponding model
+# if best_run:
+#     model_name = 'best_hac_model'
+#     model_path = 'outputs/model'  # Update with your model path
 
-    # Register the best model
-    best_run.register_model(model_name=model_name, model_path=model_path)
+#     # Register the best model
+#     best_run.register_model(model_name=model_name, model_path=model_path)
 
-    print(f"Best model registered with name: {model_name}")
-else:
-    print("No best model found.")
+#     print(f"Best model registered with name: {model_name}")
+# else:
+#     print("No best model found.")
