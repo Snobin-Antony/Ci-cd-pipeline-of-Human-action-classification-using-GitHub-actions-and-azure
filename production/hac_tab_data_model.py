@@ -26,6 +26,7 @@ parser.add_argument("--data", type=str, required=True, help='Dataset path')
 args = parser.parse_args()
 mlflow.autolog()
 mlflow.log_param("hello_param", "action_classifier")
+ws = Workspace.from_config()
 
 data_csv=pd.read_csv(args.data)
 # data_csv = pd.read_csv("human-activity-recognition-with-smartphones/human-activity-recognition-with-smartphones.csv")
@@ -144,7 +145,7 @@ workspace_name = 'assignmentsnobin'
 service_name = 'hac-classifier-service'
 
 # Load the Azure ML workspace
-ws = Workspace(subscription_id, resource_group, workspace_name)
+ws = Workspace.from_config()
 
 # Retrieve the registered model
 model = Model(ws, name=registered_model_name, version=1)  # Update version as needed
