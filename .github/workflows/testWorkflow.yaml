@@ -51,8 +51,8 @@ jobs:
           echo "Final Job Status: $job_status"
 
           if [ "$job_status" == "Completed" ]; then      
-            run: az ml model register --model-name hac_model --asset-path best_estimator/model.pkl
-            run: az ml model deploy --model-name hac_model --service-name hac-model-service --workspace-name assignmentsnobin --resource-group assignment-snobin
+            az ml model register --model-name hac_model --asset-path best_estimator/model.pkl
+            az ml model deploy --model-name hac_model --service-name hac-model-service --workspace-name assignmentsnobin --resource-group assignment-snobin
           fi
 
 
