@@ -11,14 +11,14 @@ from azure.ai.ml.constants import AssetTypes
 from azure.ai.ml.entities import ManagedOnlineEndpoint
 from azure.ai.ml.entities import ManagedOnlineDeployment
 
-# # authenticate
-# credential = AzureCliCredential()
-# # credential = DefaultAzureCredential()
+# authenticate
+credential = AzureCliCredential()
+# credential = DefaultAzureCredential()
 
-# # Get the arugments we need to avoid fixing the dataset path in code
-# parser = argparse.ArgumentParser()
-# parser.add_argument("--job_name", type=str, required=True, help='job name to register a model')
-# args = parser.parse_args()
+# Get the arugments we need to avoid fixing the dataset path in code
+parser = argparse.ArgumentParser()
+parser.add_argument("--job_name", type=str, required=True, help='job name to register a model')
+args = parser.parse_args()
 
 # # Get a handle to the workspace
 # ml_client = MLClient(
