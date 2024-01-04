@@ -24,8 +24,6 @@ jobs:
         run: az account show
       - name: Install dependencies
         run: pip install -r requirements.txt
-      - name: test python run 
-        run: python production/model_deploy.py --job_name Chakka
       - name: add extension
         run: az extension add --name ml
       # Create Job and capture the job name in an environment variable
@@ -55,7 +53,7 @@ jobs:
           echo "Final Job Status: $job_status"
 
           if [ "$job_status" == "Completed" ]; then      
-          - script: python model_deploy.py --job_name $AZURE_ML_JOB_NAME
+            run: python production/model_deploy.py --job_name $AZURE_ML_JOB_NAME
           fi
 
 
