@@ -17,9 +17,6 @@ from sklearn.metrics import accuracy_score
 from sklearn.metrics import confusion_matrix
 from sklearn.model_selection import train_test_split
 
-from azure.ai.ml import MLClient
-from azure.identity import DefaultAzureCredential
-
 import warnings
 warnings.filterwarnings("ignore")
 
@@ -141,6 +138,9 @@ mlflow.sklearn.save_model(
 # resource_group = 'assignment-snobin'
 # workspace_name = 'assignmentsnobin'
 # service_name = 'hac-classifier-service'
+
+from azure.ai.ml import MLClient
+from azure.identity import DefaultAzureCredential
 
 # authenticate
 credential = DefaultAzureCredential()
