@@ -19,7 +19,9 @@ from sklearn.model_selection import train_test_split
 import warnings
 warnings.filterwarnings("ignore")
 
-
+# Azure ML dependencies
+from azureml.core import Workspace, Model
+import mlflow.azureml
 
 # Get the arugments we need to avoid fixing the dataset path in code
 parser = argparse.ArgumentParser()
@@ -72,8 +74,12 @@ for i in range(num_models):
     # lr_classifier = LogisticRegression()
     lr_classifier_rs = RandomizedSearchCV(lr_classifier, param_distributions=parameters, cv=5,random_state = 42)
     lr_classifier_rs.fit(X_train, Y_train)
-    y_pred = lr_classifier_rs.predict(X_test)
 
+    # Save the model using MLflow
+    model_path = f"model_{i}"
+    mlflow.sklearn.save_model(lr_classifier_rs.best_estimator_, model_path)
+
+    y_pred = lr_classifier_rs.predict(X_test)
     lr_accuracy = accuracy_score(y_true=Y_test, y_pred=y_pred)
     print(f'Model {i+1} - Accuracy: {lr_accuracy}')
     mlflow.log_metric(f'Model_{i+1}_Accuracy:',lr_accuracy)
@@ -117,3 +123,21 @@ for i in range(num_models):
     # Plot the confusion matrix
     cm = confusion_matrix(Y_test.values,y_pred)
     plot_confusion_matrix(cm, np.unique(y_pred), i)  # plotting confusion matrix
+
+# Now, register the model in Azure ML workspace
+# Replace with your workspace details
+subscription_id = 'bf0717bf-dfd1-4019-a2b6-aa46e3899a4d'
+resource_group = 'assignment-snobin'
+workspace_name = 'assignmentsnobin'
+
+# Load the workspace
+ws = Workspace(workspace_name, resource_group, subscription_id)
+
+# Register the model in Azure ML workspace
+model_path = f"model_{i}"
+model = mlflow.azureml.register(model_path=model_path, model_name="hac_model", workspace=ws)
+
+# Deploy the registered model as a web service in Azure Container Instances (ACI)
+# Replace 'your_service_name' with your desired service name
+service_name = 'hac-model-service'
+mlflow.azureml.deploy(model_path=model, workspace=ws, service_name=service_name)
