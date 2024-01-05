@@ -45,16 +45,16 @@ jobs:
             fi
           done
         shell: bash
-      # Register and Deploy the model
-      - name: Register and Deploy the Model
-        id: register-and-deploy
+      # Check the final status of the Azure ML job
+      - name: Check Azure ML Job Status
+        id: check-job-status
         run: |
           job_status=$(az ml job show --resource-group assignment-snobin --workspace-name assignmentsnobin --name $AZURE_ML_JOB_NAME --query 'status' -o tsv)
           echo "Final Job Status: $job_status"
-
-          if [ "$job_status" == "Completed" ]; then      
-            run: python production/model_deploy.py --job_name $AZURE_ML_JOB_NAME
-          fi
+      # Register and Deploy the model
+      - name: Register and Deploy the Model
+        id: register-and-deploy
+        run: python production/model_deploy.py --job_name $AZURE_ML_JOB_NAME
 
 
 
