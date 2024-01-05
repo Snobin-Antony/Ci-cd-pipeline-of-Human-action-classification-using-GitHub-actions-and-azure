@@ -63,7 +63,7 @@ for i in range(num_models):
     print("Train length", len(X_train))
     print("Test length", len(X_test))
 
-    retrain_requested = 0
+    retrain_requested = args.retrain
     if retrain_requested:
         # Create Logistic Regression Classifier
         print("Retraining with Logistic Regression Model")
