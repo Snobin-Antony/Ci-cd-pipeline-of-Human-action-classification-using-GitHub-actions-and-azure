@@ -91,7 +91,7 @@ blue_deployment = ml_client.online_deployments.begin_create_or_update(
 
 # blue deployment takes 100% traffic
 # expect the deployment to take approximately 8 to 10 minutes.
-endpoint.traffic = {"blue": 100}
+endpoint.traffic = {"hac-model-blue": 100}
 ml_client.online_endpoints.begin_create_or_update(endpoint).result()
 
 print("Deployment completed")

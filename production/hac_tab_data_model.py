@@ -6,7 +6,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 from sklearn.preprocessing import LabelEncoder
-from sklearn.tree import DecisionTreeClassifier
+from sklearn.neighbors import KNeighborsClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import RandomizedSearchCV
 
@@ -22,6 +22,7 @@ warnings.filterwarnings("ignore")
 # Get the arugments we need to avoid fixing the dataset path in code
 parser = argparse.ArgumentParser()
 parser.add_argument("--data", type=str, required=True, help='Dataset path')
+parser.add_argument("--retrain", type=int, required=True, help='train or retrain flag')
 args = parser.parse_args()
 mlflow.autolog()
 mlflow.log_param("hello_param", "action_classifier")
@@ -30,7 +31,7 @@ data_csv=pd.read_csv(args.data)
 # data_csv = pd.read_csv("human-activity-recognition-with-smartphones/human-activity-recognition-with-smartphones.csv")
 
 
-print(data_csv.head())
+# print(data_csv.head())
 print(data_csv["Activity"].unique())
 print('Number of duplicates in data : ',sum(data_csv.duplicated()))
 print('Total number of missing values in train : ', data_csv.isna().values.sum())
@@ -58,16 +59,21 @@ num_models = 1
 
 for i in range(num_models):
     #Split the data and keep 20% back for testing later
-    X_train, X_test, Y_train, Y_test = train_test_split(x_data_df, y_data_df, test_size=0.20, random_state=i)
+    X_train, X_test, Y_train, Y_test = train_test_split(x_data_df, y_data_df, test_size=0.20, random_state=42)
     print("Train length", len(X_train))
     print("Test length", len(X_test))
 
-    # Create Decision Tree Classifier
-    parameters = {'max_depth': np.arange(3, 15),'min_samples_split': np.arange(2, 11),'min_samples_leaf': np.arange(1, 11),'criterion': ['gini', 'entropy']}
-    lr_classifier = DecisionTreeClassifier()
-    ## Create Logistic Regression Classifier
-    # parameters = {'C':np.arange(10,61,10), 'penalty':['l2','l1']}
-    # lr_classifier = LogisticRegression()
+    retrain_requested = 0
+    if retrain_requested:
+        # Create Logistic Regression Classifier
+        print("Retraining with Logistic Regression Model")
+        parameters = {'C':np.arange(10,61,20), 'penalty':['l2','l1']}
+        lr_classifier_rs = LogisticRegression()
+    else:
+        # Create Decision Tree Classifier
+        print("Training with Decision Tree Model")   
+        parameters = {'weights': ['uniform', 'distance'],'n_neighbors': np.arange(1, 21)}
+        lr_classifier = KNeighborsClassifier()
     lr_classifier_rs = RandomizedSearchCV(lr_classifier, param_distributions=parameters, cv=5,random_state = 42)
     lr_classifier_rs.fit(X_train, Y_train)
 
@@ -89,7 +95,7 @@ for i in range(num_models):
 
     ## Make predictions
     # output_class = lr_classifier_rs.predict(X_test.iloc[0:2])
-    output_class = lr_classifier_rs.predict(X_test.iloc[[1469]])
+    output_class = lr_classifier_rs.predict(X_test.iloc[[1]])
     # output_class_label = original_labels[output_class]
     # Convert the array to a list and then to JSON
     activity_json = json.dumps(output_class.tolist())
