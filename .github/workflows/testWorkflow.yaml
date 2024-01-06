@@ -25,8 +25,8 @@ jobs:
         id: check-accuracy-and-ru
         run: |
           echo "OUTPUT_ACC=${{ steps.register-and-deplo.outputs.test_accuracy }}" >> $GITHUB_ENV
-          echo "${{ steps.register-and-deplo.outputs.test_accuracy }}"
-          if [ "${{ steps.register-and-deplo.outputs.test_accuracy }}" < "0.95" ]; then
+          echo "${{ steps.register-and-deplo.outputs.test_accuracy }} < 0.95"
+          if [ "${{ steps.register-and-deplo.outputs.test_accuracy }}" < 0.95 ]; then
             echo "Test accuracy is less than 0.95"
             # Your additional steps or jobs to run when test accuracy is greater than 0.95
           else
