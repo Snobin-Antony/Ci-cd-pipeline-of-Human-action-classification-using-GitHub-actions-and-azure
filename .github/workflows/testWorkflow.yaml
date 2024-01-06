@@ -98,5 +98,5 @@ jobs:
           echo "Final Job Status: $job_status"
       # Register, Deploy and Test the model
       - name: Register and Deploy the Model
-        id: register-and-deploy
+        id: register-deploy-test
         run: python production/model_deploy.py --deploy_name hac_model_green --job_name $AZURE_ML_REJOB_NAME
