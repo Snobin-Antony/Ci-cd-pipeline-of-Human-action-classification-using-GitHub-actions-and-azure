@@ -51,10 +51,19 @@ jobs:
         run: |
           job_status=$(az ml job show --resource-group assignment-snobin --workspace-name assignmentsnobin --name $AZURE_ML_JOB_NAME --query 'status' -o tsv)
           echo "Final Job Status: $job_status"
-      # Register and Deploy the model
+      # Register, Deploy and Test the model
       - name: Register and Deploy the Model
         id: register-and-deploy
         run: python production/model_deploy.py --job_name $AZURE_ML_JOB_NAME
+      # Check the test accuracy and run the job again if the accuracy is less than 95%
+      - name: Check Test Accuracy and Run the Job Again
+        id: check-accuracy-and-run
+        run: |
+          echo "OUTPUT_ACC=${{ steps.register-and-deploy.outputs.test_accuracy }}" >> $GITHUB_ENV
+          echo "Test Accuracy: $OUTPUT_ACC"
+          if [ "$OUTPUT_ACC" <= 95 ]; then
+            sleep 60  # Adjust the sleep interval as needed
+          fi
 
 
 

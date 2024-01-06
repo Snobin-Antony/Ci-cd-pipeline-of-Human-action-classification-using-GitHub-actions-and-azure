@@ -1,8 +1,12 @@
 from azure.ai.ml import MLClient
 from azure.identity import DefaultAzureCredential
+import os
+import ast 
+import json
 import uuid
 import logging
 import argparse
+import pandas as pd
 logging.basicConfig(level=logging.DEBUG)
 from azure.identity import AzureCliCredential, DefaultAzureCredential
 
@@ -10,6 +14,7 @@ from azure.ai.ml.entities import Model
 from azure.ai.ml.constants import AssetTypes
 from azure.ai.ml.entities import ManagedOnlineEndpoint
 from azure.ai.ml.entities import ManagedOnlineDeployment
+from sklearn.metrics import accuracy_score
 
 # authenticate
 credential = AzureCliCredential()
@@ -94,4 +99,71 @@ blue_deployment = ml_client.online_deployments.begin_create_or_update(
 endpoint.traffic = {"hac-model-blue": 100}
 ml_client.online_endpoints.begin_create_or_update(endpoint).result()
 
+print(online_endpoint_name)
 print("Deployment completed")
+
+######################
+####Test the model####
+######################
+
+# Create a directory to store the sample request file.
+deploy_dir = "./deploy"
+os.makedirs(deploy_dir, exist_ok=True)
+
+test_csv = pd.read_csv("experimentation/test.csv")
+
+print(test_csv["Activity"].unique())
+print('Number of duplicates in data : ',sum(test_csv.duplicated()))
+print('Total number of missing values in train : ', test_csv.isna().values.sum())
+
+test_df = test_csv[~test_csv['Activity'].isin(['WALKING_DOWNSTAIRS', 'WALKING_UPSTAIRS'])]
+print(test_df.Activity.value_counts())
+
+y_test_df = test_df.Activity
+x_test_df = test_df.drop(['subject', 'Activity'], axis=1)
+print(x_test_df.shape)
+print(y_test_df.shape)    
+
+# Given DataFrame
+df = x_test_df#.iloc[0:1]
+
+# Define the desired columns
+desired_columns = df.columns.tolist()
+
+# Create the desired structure
+data = {
+    "input_data": {
+        "columns": desired_columns,
+        "index": df[desired_columns].index.tolist(),
+        "data": df[desired_columns].values.tolist()
+    },
+    "params": {}
+}
+
+# print(data)
+json_string = json.dumps(data, indent=2)
+# print(json_string)
+
+file_path = f"{deploy_dir}/sample-request.json"
+
+# Write json_string to the file
+with open(file_path, "w") as file:
+    file.write(json_string)
+
+# test the blue deployment with the sample data
+output = ml_client.online_endpoints.invoke(
+    endpoint_name=online_endpoint_name,
+    deployment_name="hac-model-blue",
+    request_file="./deploy/sample-request.json",
+)
+
+logs = ml_client.online_deployments.get_logs(
+    name="hac-model-blue", endpoint_name=online_endpoint_name, lines=50
+)
+
+# Convert the list to a Pandas Series
+output_series = pd.Series(ast.literal_eval(output))
+
+test_accuracy = accuracy_score(y_true=y_test_df, y_pred=output_series)
+print(f'Test - Accuracy: {test_accuracy}')
+print(test_accuracy)

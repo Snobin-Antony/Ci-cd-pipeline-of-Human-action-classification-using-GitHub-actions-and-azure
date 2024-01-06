@@ -5,3 +5,4 @@ scikit-learn~=1.1.0
 matplotlib==3.7.3
 azureml-sdk==1.54.0
 azure-ai-ml==1.12.1
+azureml.ai.monitoring==0.1.0b4
