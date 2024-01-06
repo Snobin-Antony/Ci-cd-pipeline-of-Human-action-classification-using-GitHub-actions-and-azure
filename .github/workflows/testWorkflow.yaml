@@ -25,7 +25,6 @@ jobs:
         id: check-accuracy-and-ru
         run: |
           threshold=0.95
-          echo "OUTPUT_ACC=${{ steps.register-and-deplo.outputs.test_accuracy }}" >> $GITHUB_ENV
           if awk -v value="${{ steps.register-and-deplo.outputs.test_accuracy }}" -v threshold="$threshold" 'BEGIN { exit !(value > threshold) }'; then
             echo "The value is greater than $threshold"
           else
