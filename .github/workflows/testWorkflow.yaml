@@ -26,12 +26,10 @@ jobs:
         run: |
           echo "GITHUB_OUTPUT"
           echo "OUTPUT_ACC=${{ steps.register-and-deplo.outputs.test_accuracy }}" >> $GITHUB_ENV
-          echo "${{ steps.register-and-deplo.outputs.test_accuracy }} < 0.95"
-          if [ ${{ steps.register-and-deplo.outputs.test_accuracy }} -lt 0.95 ]; then
-            echo "Test accuracy is less than 0.95"
-            # Your additional steps or jobs to run when test accuracy is greater than 0.95
+          if awk -v value="${{ steps.register-and-deplo.outputs.test_accuracy }}" -v 0.95="$threshold" 'BEGIN { exit !(value > threshold) }'; then
+            echo "The value is greater than $threshold"
           else
-            echo "Test accuracy is greater than 0.95"
+            echo "The value is not greater than $threshold"
           fi
       - name: Log into Azure
         uses: azure/login@v1
