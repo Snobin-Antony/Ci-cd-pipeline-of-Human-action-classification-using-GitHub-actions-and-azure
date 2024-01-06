@@ -1,13 +1,11 @@
 $schema: https://azuremlschemas.azureedge.net/latest/commandJob.schema.json
 #name: human-action-classifier-job  # custom job name
 code: .
-command: python hac_tab_data_model.py --retrain ${{ inputs.my_parameter }} --data ${{ inputs.training_data }}
+command: python hac_tab_data_model.py --retrain ${{ env.my_parameter }} --data ${{ inputs.training_data }}
 inputs:
   training_data:
     type: uri_file
     path: azureml:hactab-train:1  # dataset path
-  my_parameter:
-    type: int
 environment: azureml://registries/azureml/environments/sklearn-1.1/versions/14
 compute: assignment-ml-compute
 experiment_name: coursework-ml-compute-human-action-classification
