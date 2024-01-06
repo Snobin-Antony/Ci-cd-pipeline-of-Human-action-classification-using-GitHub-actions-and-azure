@@ -16,6 +16,10 @@ jobs:
       - run: echo "Repository cloned, I think I'm ready. The files look like this:"
       - name: List files
         run: ls ${{ github.workspace }}
+      - name: Log into Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
       # Register, Deploy and Test the model
       - name: Register and Deploy the Model
         id: register-and-deploy
@@ -30,19 +34,9 @@ jobs:
           else
             echo "The value is not greater than $threshold"
             echo "Running the training job again with another model"
-            - name: Log into Azure
-              uses: azure/login@v1
-              with:
-                creds: ${{ secrets.AZURE_CREDENTIALS }}
             - name: Test azure login by getting details
               run: az account show
           fi
-      # - name: Log into Azure
-      #   uses: azure/login@v1
-      #   with:
-      #     creds: ${{ secrets.AZURE_CREDENTIALS }}
-      # - name: Test azure login by getting details
-      #   run: az account show
       - name: Install dependencies
         run: pi install -r requirements.txt
       - name: add extension
