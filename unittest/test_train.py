@@ -13,7 +13,7 @@ class TestTrain(unittest.TestCase):
     def test_loadData(self):
         #We know it should have 150 rows, so let's check that
         #We also know that the X and Y should be the same length
-        X, Y = loadData("UI/2024-01-06_204508_UTC/test.csv")
+        X, Y = loadData("azureml://subscriptions/bf0717bf-dfd1-4019-a2b6-aa46e3899a4d/resourcegroups/assignment-snobin/workspaces/assignmentsnobin/datastores/workspaceblobstore/paths/UI/2024-01-06_061109_UTC/train.csv")
         self.assertGreaterEqual(len(X), 2056)
         self.assertEqual(len(Y), len(X))
         #We also know X should have two columns, so lets check that
