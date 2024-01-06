@@ -12,15 +12,3 @@ environment: azureml://registries/azureml/environments/sklearn-1.1/versions/14
 compute: assignment-ml-compute
 experiment_name: coursework-ml-compute-hac-integration-test
 description: coursework2 demo
-dependencies:
-  - pip
-  - pip:
-      - pandas~=1.4
-      - mlflow==1.27.0
-      - ipykernel~=6.0
-      - azureml-core==1.48.0
-      - azure-ai-ml==1.12.1
-      - matplotlib==3.7.3
-      - pytest==7.1.2
-      - scikit-learn~=1.1.0
-      - fsspec==2023.12.2
