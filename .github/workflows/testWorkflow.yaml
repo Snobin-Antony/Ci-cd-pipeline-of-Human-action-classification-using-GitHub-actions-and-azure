@@ -24,8 +24,11 @@ jobs:
       - name: Check Test Accuracy and Run the Job Again
         id: check-accuracy-and-ru
         run: |
+          set -x
           echo "OUTPUT_ACC=${{ steps.register-and-deplo.outputs.test_accuracy }}" >> $GITHUB_ENV
           echo "Test Accuracy: $OUTPUT_ACC"
+          cat $GITHUB_ENV
+          set +x
           if [ "$OUTPUT_ACC" <= 95 ]; then
             sleep 60  # Adjust the sleep interval as needed
           fi
