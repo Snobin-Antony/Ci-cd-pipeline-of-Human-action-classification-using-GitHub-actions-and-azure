@@ -68,7 +68,7 @@ for i in range(num_models):
         # Create Logistic Regression Classifier
         print("Retraining with Logistic Regression Model")
         parameters = {'C':np.arange(10,61,20), 'penalty':['l2','l1']}
-        lr_classifier_rs = LogisticRegression()
+        lr_classifier = LogisticRegression()
     else:
         # Create Decision Tree Classifier
         print("Training with Decision Tree Model")   
