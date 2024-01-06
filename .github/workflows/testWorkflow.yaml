@@ -25,7 +25,7 @@ jobs:
         id: check-accuracy-and-ru
         run: |
           set -x
-          echo "OUTPUT_ACC=${{ steps.register-and-deplo.outputs.test_accuracy }}" >> $GITHUB_ENV
+          echo "OUTPUT_ACC=${{ steps.register-and-deplo.outputs.test_accuracy }}" | tee -a $GITHUB_ENV
           echo "Test Accuracy: $OUTPUT_ACC"
           cat $GITHUB_ENV
           set +x
