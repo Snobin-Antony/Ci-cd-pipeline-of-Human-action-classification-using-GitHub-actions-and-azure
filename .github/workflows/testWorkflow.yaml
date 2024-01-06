@@ -20,36 +20,16 @@ jobs:
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
-      # Register, Deploy and Test the model
-      - name: Register and Deploy the Model
-        id: register-and-deploy
-        run: python production/model_deploy.py --job_name AZURE_ML_JOB_NAME
-      # Check the test accuracy and run the job again if the accuracy is less than 95%
-      - name: Check Test Accuracy and Run the Job Again
-        id: check-accuracy-and-run
-        run: |
-          threshold=0.95
-          if awk -v value="${{ steps.register-and-deploy.outputs.test_accuracy }}" -v threshold="$threshold" 'BEGIN { exit !(value > threshold) }'; then
-            echo "The value is greater than $threshold"
-            echo "::set-output name=stop_workflow::true"
-          else
-            echo "The value is not greater than $threshold"
-            echo "Running the training job again with another model"
-            echo "::set-output name=stop_workflow::false"
-          fi
-      - name: Stop Workflow if Needed
-        if: steps.check-accuracy-and-run.outputs.stop_workflow == 'true'
-        run: exit 98
       - name: Test azure login by getting details
         run: az account show
       - name: Install dependencies
-        run: pi install -r requirements.txt
+        run: pip install -r requirements.txt
       - name: add extension
         run: az extension add --name ml
       # Create Job and capture the job name in an environment variable
       - name: create job
         run: |
-          export AZURE_ML_JOB_NAME=$(az ml job create --file production/job.yaml --resource-group assignment-snobin --workspace-name assignmentsnobin --query name -o tsv)
+          export AZURE_ML_JOB_NAME=$(az ml job create --file production/job.yaml -p my_parameter=0 --resource-group assignment-snobin --workspace-name assignmentsnobin --query name -o tsv)
           echo "AZURE_ML_JOB_NAME=${AZURE_ML_JOB_NAME}" >> $GITHUB_ENV
       # Wait for the Azure ML job to complete
       - name: Wait for Azure ML Job
@@ -71,18 +51,52 @@ jobs:
         run: |
           job_status=$(az ml job show --resource-group assignment-snobin --workspace-name assignmentsnobin --name $AZURE_ML_JOB_NAME --query 'status' -o tsv)
           echo "Final Job Status: $job_status"
-      # # Register, Deploy and Test the model
-      # - name: Register and Deploy the Model
-      #   id: register-and-deploy
-      #   run: python production/model_deploy.py --job_name $AZURE_ML_JOB_NAME
-      # # Check the test accuracy and run the job again if the accuracy is less than 95%
-      # - name: Check Test Accuracy and Run the Job Again
-      #   id: check-accuracy-and-run
-      #   run: |
-      #     threshold=0.95
-      #     if awk -v value="${{ steps.register-and-deploy.outputs.test_accuracy }}" -v threshold="$threshold" 'BEGIN { exit !(value > threshold) }'; then
-      #       echo "The value is greater than $threshold"
-      #     else
-      #       echo "The value is not greater than $threshold"
-      #       echo "Running the training job again with another model"
-      #     fi
+      # Register, Deploy and Test the model
+      - name: Register and Deploy the Model
+        id: register-and-deploy
+        run: python production/model_deploy.py --deploy_name hac_model_blue --job_name $AZURE_ML_JOB_NAME
+      # Check the test accuracy and run the job again if the accuracy is less than 95%
+      - name: Check Test Accuracy and Run the Job Again
+        id: check-accuracy-and-run
+        run: |
+          threshold=0.95
+          if awk -v value="${{ steps.register-and-deploy.outputs.test_accuracy }}" -v threshold="$threshold" 'BEGIN { exit !(value > threshold) }'; then
+            echo "The value is greater than $threshold"
+            echo "::set-output name=stop_workflow::true"
+          else
+            echo "The value is not greater than $threshold"
+            echo "Running the training job again with another model"
+            echo "::set-output name=stop_workflow::false"
+          fi
+      - name: Stop Workflow if Needed
+        if: steps.check-accuracy-and-run.outputs.stop_workflow == 'true'
+        run: exit 0
+      # Create Job and capture the job name in an environment variable
+      - name: create second job
+        run: |
+          export AZURE_ML_REJOB_NAME=$(az ml job create --file production/job.yaml -p my_parameter=1 --resource-group assignment-snobin --workspace-name assignmentsnobin --query name -o tsv)
+          echo "AZURE_ML_REJOB_NAME=${AZURE_ML_REJOB_NAME}" >> $GITHUB_ENV
+      # Wait for the Azure ML job to complete
+      - name: Wait for Azure ML retrain Job
+        id: wait-for-retrain-job
+        run: |
+          job_status="NotStarted"
+          while [ "$job_status" != "Completed" ]; do
+            echo "Job Name: $AZURE_ML_REJOB_NAME"
+            job_status=$(az ml job show --resource-group assignment-snobin --workspace-name assignmentsnobin --name $AZURE_ML_REJOB_NAME --query 'status' -o tsv)
+            echo "Job Status: $job_status"
+            if [ "$job_status" != "Completed" ]; then
+              sleep 60  # Adjust the sleep interval as needed
+            fi
+          done
+        shell: bash
+      # Check the final status of the Azure ML job
+      - name: Check Azure ML Re-Job Status
+        id: check-retrain-job-status
+        run: |
+          job_status=$(az ml job show --resource-group assignment-snobin --workspace-name assignmentsnobin --name $AZURE_ML_REJOB_NAME --query 'status' -o tsv)
+          echo "Final Job Status: $job_status"
+      # Register, Deploy and Test the model
+      - name: Register and Deploy the Model
+        id: register-and-deploy
+        run: python production/model_deploy.py --deploy_name hac_model_green --job_name $AZURE_ML_REJOB_NAME
