@@ -167,5 +167,9 @@
 # test_accuracy = accuracy_score(y_true=y_test_df, y_pred=output_series)
 # print(f'Test - Accuracy: {test_accuracy}')
 test_accuracy = 0.4
-print(test_accuracy)
-print(f'::set-output name=test_accuracy::{test_accuracy}')
+# print(test_accuracy)
+# print(f'::set-output name=test_accuracy::{test_accuracy}')
+import os
+
+with open(os.environ['GITHUB_OUTPUT'], 'a') as fh:
+    print(f'test_accuracy={test_accuracy}', file=fh)

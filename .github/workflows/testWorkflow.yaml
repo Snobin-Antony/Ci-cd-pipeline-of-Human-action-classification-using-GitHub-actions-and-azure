@@ -24,6 +24,7 @@ jobs:
       - name: Check Test Accuracy and Run the Job Again
         id: check-accuracy-and-ru
         run: |
+          echo "$GITHUB_OUTPUT"
           echo "OUTPUT_ACC=${{ steps.register-and-deplo.outputs.test_accuracy }}" >> $GITHUB_ENV
           echo "${{ steps.register-and-deplo.outputs.test_accuracy }} < 0.95"
           if [ "${{ steps.register-and-deplo.outputs.test_accuracy }}" < 0.95 ]; then
