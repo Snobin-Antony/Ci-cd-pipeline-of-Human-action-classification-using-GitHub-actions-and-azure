@@ -168,3 +168,4 @@
 # print(f'Test - Accuracy: {test_accuracy}')
 test_accuracy = 0.4
 print(test_accuracy)
+print(f'::set-output name=test_accuracy::{test_accuracy}')
