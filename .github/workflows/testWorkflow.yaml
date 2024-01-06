@@ -54,7 +54,7 @@ jobs:
       # Register, Deploy and Test the model
       - name: Register and Deploy the Model
         id: register-and-deploy
-        run: python production/model_deploy.py --deploy_name hac_model_blue --job_name $AZURE_ML_JOB_NAME
+        run: python production/model_deploy.py --deploy_name hac-model-blue --job_name $AZURE_ML_JOB_NAME
       # Check the test accuracy and run the job again if the accuracy is less than 95%
       - name: Check Test Accuracy and Run the Job Again
         id: check-accuracy-and-run
@@ -99,4 +99,4 @@ jobs:
       # Register, Deploy and Test the model
       - name: Register and Deploy the Model
         id: register-deploy-test
-        run: python production/model_deploy.py --deploy_name hac_model_green --job_name $AZURE_ML_REJOB_NAME
+        run: python production/model_deploy.py --deploy_name hac-model-green --job_name $AZURE_ML_REJOB_NAME

@@ -38,7 +38,7 @@ job_name = args.job_name
 
 run_model = Model(
     path=f"azureml://jobs/{job_name}/outputs/artifacts/paths/model/",
-    name="human_action_classify_model",
+    name="human-action-classify-model",
     description="Model created from run.",
     type=AssetTypes.MLFLOW_MODEL,
 )
@@ -46,7 +46,7 @@ run_model = Model(
 # Register the model
 ml_client.models.create_or_update(run_model)
 
-registered_model_name="human_action_classify_model"
+registered_model_name="human-action-classify-model"
 
 # Let's pick the latest version of the model
 latest_model_version = max(
@@ -83,7 +83,7 @@ model = ml_client.models.get(name=registered_model_name, version=latest_model_ve
 deploy_name = args.deploy_name
 # if you run into an out of quota error, change the instance_type to a comparable VM that is available.\
 # Learn more on https://azure.microsoft.com/en-us/pricing/details/machine-learning/.
-if deploy_name == "hac_model_blue":
+if deploy_name == "hac-model-blue":
     blue_deployment = ManagedOnlineDeployment(
         name=args.deploy_name,
         endpoint_name=online_endpoint_name,
@@ -120,7 +120,7 @@ else:
 
     # blue deployment takes 100% traffic
     # expect the deployment to take approximately 8 to 10 minutes.
-    endpoint.traffic = {"hac_model_blue": 20, "hac_model_green": 80}
+    endpoint.traffic = {"hac-model-blue": 20, "hac-model-green": 80}
     ml_client.online_endpoints.begin_create_or_update(endpoint).result()
 
     print(online_endpoint_name)
