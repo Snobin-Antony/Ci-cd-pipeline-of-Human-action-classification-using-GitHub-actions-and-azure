@@ -1,6 +1,6 @@
 $schema: https://azuremlschemas.azureedge.net/latest/commandJob.schema.json
 code: .
-command: python -m unittest test_train test_train_integration --train ${{ inputs.training_data }} --test ${{ inputs.testing_data }}
+command: python -m unittest test_train test_train_integration
 inputs:
   training_data:
     type: uri_file
