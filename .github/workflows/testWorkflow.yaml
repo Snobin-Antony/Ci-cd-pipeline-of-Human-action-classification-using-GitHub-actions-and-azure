@@ -39,7 +39,7 @@ jobs:
           fi
       - name: Stop Workflow if Needed
         if: steps.check-accuracy-and-run.outputs.stop_workflow == 'true'
-        run: # exit_with_success
+        run: exit 1
       - name: Test azure login by getting details
         run: az account show
       - name: Install dependencies
