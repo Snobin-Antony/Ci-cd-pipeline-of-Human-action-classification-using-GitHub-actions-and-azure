@@ -23,7 +23,7 @@ class TestTrain(unittest.TestCase):
         # Python has a nice context manager for this in the tempfile module.
         with tempfile.TemporaryDirectory() as tmpdir:
             #Use the trainmodel function to create a model
-            model, trainX, trainY = trainModel("./INPUT_training_data/train.csv", tmpdir + "/model")
+            model, trainX, trainY = trainModel("UI/2024-01-06_061109_UTC/train.csv", tmpdir + "/model")
             #Check the training data is as expected
             #Check X and Y are the same length
             self.assertEqual(len(trainX), len(trainY))

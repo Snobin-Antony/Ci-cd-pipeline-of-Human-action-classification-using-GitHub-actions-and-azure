@@ -13,7 +13,7 @@ class TestTrain(unittest.TestCase):
     def test_loadData(self):
         #We know it should have 150 rows, so let's check that
         #We also know that the X and Y should be the same length
-        X, Y = loadData("./INPUT_testing_data/test.csv")
+        X, Y = loadData("UI/2024-01-06_204508_UTC/test.csv")
         self.assertGreaterEqual(len(X), 2056)
         self.assertEqual(len(Y), len(X))
         #We also know X should have two columns, so lets check that
