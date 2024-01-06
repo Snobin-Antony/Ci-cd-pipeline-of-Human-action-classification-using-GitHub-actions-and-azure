@@ -24,9 +24,9 @@ jobs:
       - name: Check Test Accuracy and Run the Job Again
         id: check-accuracy-and-ru
         run: |
-          echo "GITHUB_OUTPUT"
+          threshold=0.95
           echo "OUTPUT_ACC=${{ steps.register-and-deplo.outputs.test_accuracy }}" >> $GITHUB_ENV
-          if awk -v value="${{ steps.register-and-deplo.outputs.test_accuracy }}" -v 0.95="$threshold" 'BEGIN { exit !(value > threshold) }'; then
+          if awk -v value="${{ steps.register-and-deplo.outputs.test_accuracy }}" -v threshold="$threshold" 'BEGIN { exit !(value > threshold) }'; then
             echo "The value is greater than $threshold"
           else
             echo "The value is not greater than $threshold"
