@@ -31,11 +31,15 @@ jobs:
           threshold=0.95
           if awk -v value="${{ steps.register-and-deploy.outputs.test_accuracy }}" -v threshold="$threshold" 'BEGIN { exit !(value > threshold) }'; then
             echo "The value is greater than $threshold"
-            run: exit 0
+            echo "::set-output name=stop_workflow::true"
           else
             echo "The value is not greater than $threshold"
             echo "Running the training job again with another model"
+            echo "::set-output name=stop_workflow::false"
           fi
+      - name: Stop Workflow if Needed
+        if: steps.check-accuracy-and-run.outputs.stop_workflow == 'true'
+        run: exit 0
       - name: Test azure login by getting details
         run: az account show
       - name: Install dependencies
