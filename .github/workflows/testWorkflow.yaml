@@ -18,24 +18,31 @@ jobs:
         run: ls ${{ github.workspace }}
       # Register, Deploy and Test the model
       - name: Register and Deploy the Model
-        id: register-and-deplo
+        id: register-and-deploy
         run: python production/model_deploy.py --job_name AZURE_ML_JOB_NAME
       # Check the test accuracy and run the job again if the accuracy is less than 95%
       - name: Check Test Accuracy and Run the Job Again
-        id: check-accuracy-and-ru
+        id: check-accuracy-and-run
         run: |
           threshold=0.95
-          if awk -v value="${{ steps.register-and-deplo.outputs.test_accuracy }}" -v threshold="$threshold" 'BEGIN { exit !(value > threshold) }'; then
+          if awk -v value="${{ steps.register-and-deploy.outputs.test_accuracy }}" -v threshold="$threshold" 'BEGIN { exit !(value > threshold) }'; then
             echo "The value is greater than $threshold"
           else
             echo "The value is not greater than $threshold"
+            echo "Running the training job again with another model"
+            - name: Log into Azure
+              uses: azure/login@v1
+              with:
+                creds: ${{ secrets.AZURE_CREDENTIALS }}
+            - name: Test azure login by getting details
+              run: az account show
           fi
-      - name: Log into Azure
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
-      - name: Test azure login by getting details
-        run: az account show
+      # - name: Log into Azure
+      #   uses: azure/login@v1
+      #   with:
+      #     creds: ${{ secrets.AZURE_CREDENTIALS }}
+      # - name: Test azure login by getting details
+      #   run: az account show
       - name: Install dependencies
         run: pi install -r requirements.txt
       - name: add extension
@@ -65,16 +72,18 @@ jobs:
         run: |
           job_status=$(az ml job show --resource-group assignment-snobin --workspace-name assignmentsnobin --name $AZURE_ML_JOB_NAME --query 'status' -o tsv)
           echo "Final Job Status: $job_status"
-      # Register, Deploy and Test the model
-      - name: Register and Deploy the Model
-        id: register-and-deploy
-        run: python production/model_deploy.py --job_name $AZURE_ML_JOB_NAME
-      # Check the test accuracy and run the job again if the accuracy is less than 95%
-      - name: Check Test Accuracy and Run the Job Again
-        id: check-accuracy-and-run
-        run: |
-          echo "OUTPUT_ACC=${{ steps.register-and-deploy.outputs.test_accuracy }}" >> $GITHUB_ENV
-          echo "Test Accuracy: $OUTPUT_ACC"
-          if [ "$OUTPUT_ACC" <= 95 ]; then
-            sleep 60  # Adjust the sleep interval as needed
-          fi
+      # # Register, Deploy and Test the model
+      # - name: Register and Deploy the Model
+      #   id: register-and-deploy
+      #   run: python production/model_deploy.py --job_name $AZURE_ML_JOB_NAME
+      # # Check the test accuracy and run the job again if the accuracy is less than 95%
+      # - name: Check Test Accuracy and Run the Job Again
+      #   id: check-accuracy-and-run
+      #   run: |
+      #     threshold=0.95
+      #     if awk -v value="${{ steps.register-and-deploy.outputs.test_accuracy }}" -v threshold="$threshold" 'BEGIN { exit !(value > threshold) }'; then
+      #       echo "The value is greater than $threshold"
+      #     else
+      #       echo "The value is not greater than $threshold"
+      #       echo "Running the training job again with another model"
+      #     fi
