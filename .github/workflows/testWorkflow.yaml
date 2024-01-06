@@ -29,7 +29,7 @@ jobs:
       # Create Job and capture the job name in an environment variable
       - name: create job
         run: |
-          export AZURE_ML_JOB_NAME=$(az ml job create --file production/job.yaml -p my_parameter=0 --resource-group assignment-snobin --workspace-name assignmentsnobin --query name -o tsv)
+          export AZURE_ML_JOB_NAME=$(az ml job create --file production/job.yaml --p my_parameter=0 --resource-group assignment-snobin --workspace-name assignmentsnobin --query name -o tsv)
           echo "AZURE_ML_JOB_NAME=${AZURE_ML_JOB_NAME}" >> $GITHUB_ENV
       # Wait for the Azure ML job to complete
       - name: Wait for Azure ML Job
@@ -74,7 +74,7 @@ jobs:
       # Create Job and capture the job name in an environment variable
       - name: create second job
         run: |
-          export AZURE_ML_REJOB_NAME=$(az ml job create --file production/job.yaml -p my_parameter=1 --resource-group assignment-snobin --workspace-name assignmentsnobin --query name -o tsv)
+          export AZURE_ML_REJOB_NAME=$(az ml job create --file production/job.yaml --p my_parameter=1 --resource-group assignment-snobin --workspace-name assignmentsnobin --query name -o tsv)
           echo "AZURE_ML_REJOB_NAME=${AZURE_ML_REJOB_NAME}" >> $GITHUB_ENV
       # Wait for the Azure ML job to complete
       - name: Wait for Azure ML retrain Job
