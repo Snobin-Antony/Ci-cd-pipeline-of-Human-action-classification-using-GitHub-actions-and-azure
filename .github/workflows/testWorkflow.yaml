@@ -31,12 +31,13 @@ jobs:
           threshold=0.95
           if awk -v value="${{ steps.register-and-deploy.outputs.test_accuracy }}" -v threshold="$threshold" 'BEGIN { exit !(value > threshold) }'; then
             echo "The value is greater than $threshold"
+            exit 0
           else
             echo "The value is not greater than $threshold"
             echo "Running the training job again with another model"
-            - name: Test azure login by getting details
-              run: az account show
           fi
+      - name: Test azure login by getting details
+        run: az account show
       - name: Install dependencies
         run: pi install -r requirements.txt
       - name: add extension
