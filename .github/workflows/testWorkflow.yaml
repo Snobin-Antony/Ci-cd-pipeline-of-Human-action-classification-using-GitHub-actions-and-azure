@@ -24,8 +24,12 @@ jobs:
         run: az account show
       - name: Install dependencies
         run: pip install -r requirements.txt
+      # Unit test and Integration test
+      - name: Unit Test and Integration Test
+        id: unit-test-and-integration-test
+        run: python -m unittest test_train test_train_integration
       - name: add extension
-        run: az extension add --name ml
+        run: az extension add name ml
       # Create Job and capture the job name in an environment variable
       - name: create job
         run: |
@@ -61,10 +65,10 @@ jobs:
         run: |
           threshold=0.95
           if awk -v value="${{ steps.register-and-deploy.outputs.test_accuracy }}" -v threshold="$threshold" 'BEGIN { exit !(value > threshold) }'; then
-            echo "The value is greater than $threshold"
+            echo "The accuracy is greater than $threshold"
             echo "::set-output name=stop_workflow::true"
           else
-            echo "The value is not greater than $threshold"
+            echo "The accuracy is less than $threshold"
             echo "Running the training job again with another model"
             echo "::set-output name=stop_workflow::false"
           fi
@@ -100,3 +104,11 @@ jobs:
       - name: Register and Deploy the Model
         id: register-deploy-test
         run: python production/model_deploy.py --deploy_name hac-model-green --job_name $AZURE_ML_REJOB_NAME
+      # Disply the test accuracy
+      - name: Check Test Accuracy and Dsiplay
+        id: check-accuracy-and-display
+        run: echo "The test accuracy is ${{ steps.register-deploy-test.outputs.test_accuracy }}"
+      # # Unit test and Integration test
+      # - name: Unit Test and Integration Test
+      #   id: unit-test-and-integration-test
+      #   run: python -m unittest test_train test_train_integration

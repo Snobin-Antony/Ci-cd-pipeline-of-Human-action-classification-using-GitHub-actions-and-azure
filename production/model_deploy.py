@@ -118,9 +118,10 @@ else:
         green_deployment
     ).result()
 
-    # blue deployment takes 100% traffic
+    # green deployment takes 100% traffic
     # expect the deployment to take approximately 8 to 10 minutes.
-    endpoint.traffic = {"hac-model-blue": 20, "hac-model-green": 80}
+    # endpoint.traffic = {"hac-model-blue": 20, "hac-model-green": 80}
+    endpoint.traffic = {args.deploy_name: 100}
     ml_client.online_endpoints.begin_create_or_update(endpoint).result()
 
     print(online_endpoint_name)
