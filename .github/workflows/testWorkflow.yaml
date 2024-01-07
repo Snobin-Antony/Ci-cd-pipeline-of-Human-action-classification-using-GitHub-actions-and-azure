@@ -1,5 +1,5 @@
-name: GitHub Actions Test
-run-name: ${{ github.actor }} workflow test
+name: GitHub Actions Human Activity Classification Workflow
+run-name: ${{ github.actor }} workflow HAC-CICD
 on: 
   push:
     branches:    
