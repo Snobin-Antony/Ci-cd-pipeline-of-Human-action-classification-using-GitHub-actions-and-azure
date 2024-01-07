@@ -5,6 +5,11 @@ import mlflow
 import argparse
 from train import trainModel
 from sklearn.linear_model import LogisticRegression
+import subprocess
+# Install fsspec
+subprocess.run(["pip", "install", "fsspec"])
+# Now you can use fsspec or any other libraries that depend on it
+import fsspec
 
 # argparser = argparse.ArgumentParser()
 # argparser.add_argument('--train', required=True, help='train data file to load')
