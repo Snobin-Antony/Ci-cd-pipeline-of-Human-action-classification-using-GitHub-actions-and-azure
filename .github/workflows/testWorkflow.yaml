@@ -24,12 +24,8 @@ jobs:
         run: az account show
       - name: Install dependencies
         run: pip install -r requirements.txt
-      # Unit test and Integration test
-      - name: Unit Test and Integration Test
-        id: unit-test-and-integration-test
-        run: python -m unittest test_train test_train_integration
       - name: add extension
-        run: az extension add name ml
+        run: az extension add --name ml
       # Create Job and capture the job name in an environment variable
       - name: create job
         run: |
@@ -108,7 +104,7 @@ jobs:
       - name: Check Test Accuracy and Dsiplay
         id: check-accuracy-and-display
         run: echo "The test accuracy is ${{ steps.register-deploy-test.outputs.test_accuracy }}"
-      # # Unit test and Integration test
-      # - name: Unit Test and Integration Test
-      #   id: unit-test-and-integration-test
-      #   run: python -m unittest test_train test_train_integration
+      # Unit test and Integration test
+      - name: Unit Test and Integration Test
+        id: unit-test-and-integration-test
+        run: python -m unittest test_train test_train_integration
