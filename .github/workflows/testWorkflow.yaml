@@ -6,7 +6,7 @@ on:
       - 'staging'
       - '!main'
 jobs:
-  testJob:
+  HAC-CICD-Workflow:
     runs-on: ubuntu-latest
     steps:
       - run: echo "Hi! I'm running because of a ${{ github.event_name }} event."
