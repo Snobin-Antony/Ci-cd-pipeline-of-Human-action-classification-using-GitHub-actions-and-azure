@@ -4,11 +4,6 @@ import argparse
 from train import loadData, splitData, buildModel, assessModel
 from sklearn.linear_model import LogisticRegression
 
-import subprocess
-# Install fsspec
-subprocess.run(["pip", "install", "fsspec"])
-# Now you can use fsspec or any other libraries that depend on it
-import fsspec
 # argparser = argparse.ArgumentParser()
 # argparser.add_argument('--test', required=True, help='test data file to load')
 # args = argparser.parse_args()
@@ -18,7 +13,7 @@ class TestTrain(unittest.TestCase):
     def test_loadData(self):
         #We know it should have 150 rows, so let's check that
         #We also know that the X and Y should be the same length
-        X, Y = loadData("azureml://subscriptions/bf0717bf-dfd1-4019-a2b6-aa46e3899a4d/resourcegroups/assignment-snobin/workspaces/assignmentsnobin/datastores/workspaceblobstore/paths/UI/2024-01-06_061109_UTC/train.csv")
+        X, Y = loadData("test.csv")
         self.assertGreaterEqual(len(X), 2056)
         self.assertEqual(len(Y), len(X))
         #We also know X should have two columns, so lets check that
