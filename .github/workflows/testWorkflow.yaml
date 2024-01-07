@@ -27,7 +27,7 @@ jobs:
       # Unit test and Integration test
       - name: Unit Test and Integration Test
         id: unit-test-and-integration-test
-        run: python -m unittest/unittest test_train test_train_integration
+        run: python -m unittest test_train test_train_integration
       - name: add extension
         run: az extension add name ml
       # Create Job and capture the job name in an environment variable
